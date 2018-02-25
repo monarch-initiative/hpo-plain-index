@@ -1,9 +1,3 @@
-### HPO Plain Language Indexer
-
-Builds a solr index of HPO plain language synonyms, including phenotype
-and anatomy groupings to enable faceting.  For example:
-
-````
 [
   {
     "id": "HP:0000464",
@@ -32,29 +26,3 @@ and anatomy groupings to enable faceting.  For example:
     ]
   }
 ]
-````
-
-### Building and running with Docker Compose
-
-Build and initialize:
-
-    docker-compose up
-
-Run the integration tests:
-
-    docker-compose run loader integration-tests
-
-Run the unit tests:
-
-    docker-compose run loader test
-
-Load the data (current implementation takes ~ x hours):
-
-    docker-compose run loader load-index
-
-Copy index to local filesystem
-
-    something
-
-
-
