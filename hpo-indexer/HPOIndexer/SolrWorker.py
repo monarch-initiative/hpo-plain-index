@@ -1,5 +1,6 @@
 from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.util.OWLUtil import OWLUtil
+from HPOIndexer.model.models import Curie
 from typing import List, Optional, Dict
 from multiprocessing import Lock
 
@@ -16,7 +17,7 @@ class SolrWorker():
         self.lock = lock # multiprocessing not implemented
 
     def get_synonyms(self,
-                     curie: str,
+                     curie: Curie,
                      synonym_types: List[str]) -> Dict[str, List[str]]:
         """
         :param curie: curie formatted id
@@ -32,7 +33,7 @@ class SolrWorker():
         for synonym_type in synonym_types:
             synonym_object[synonym_type] = \
                 [str(synonym)
-                 for synonym in self.graph.get_objects(curie, synonym_type)]
+                 for synonym in self.graph.get_objects(curie, Curie(synonym_type))]
 
         return synonym_object
 

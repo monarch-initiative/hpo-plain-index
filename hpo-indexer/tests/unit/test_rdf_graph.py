@@ -1,6 +1,7 @@
 from HPOIndexer.graph.RDFGraph import RDFGraph
-from rdflib.graph import URIRef, Literal
-from HPOIndexer.model.models import Node
+from HPOIndexer.util.CurieUtil import CurieUtil
+from rdflib import URIRef, Literal
+from HPOIndexer.model.models import Node, Curie
 import os
 
 synonym_ontology = os.path.join(os.path.dirname(__file__), 'resources/test-ontology.ttl')
@@ -13,22 +14,23 @@ class TestRDFGraph():
             'HP': 'http://purl.obolibrary.org/obo/HP_',
             'X': 'http://x.org/X_'
         }
-        self.graph = RDFGraph(curie_map)
+        curie_util = CurieUtil(curie_map)
+        self.graph = RDFGraph(curie_util)
         self.graph.parse(synonym_ontology, format='ttl')
 
     def teardown(self):
         self.graph = None
 
     def test_get_closure(self):
-        curie = 'X:finger'
-        predicate = 'X:partOf'
-        root = "X:torso"
-        label_predicate = 'X:label'
+        curie = Curie('X:finger')
+        predicate = Curie('X:partOf')
+        root = Curie('X:torso')
+        label_predicate = Curie('X:label')
         expected = {
-            Node("X:finger", "finger"),
-            Node("X:hand",   "hand"),
-            Node("X:arm",    "arm"),
-            Node("X:torso",  "torso"),
+            Node(Curie('X:finger'), 'finger'),
+            Node(Curie('X:hand'),   'hand'),
+            Node(Curie('X:arm'),    'arm'),
+            Node(Curie('X:torso'),  'torso'),
         }
         results = self.graph.get_closure(
             curie, predicate, root, label_predicate
@@ -37,15 +39,15 @@ class TestRDFGraph():
         assert results == expected
 
     def test_get_closure_no_rel(self):
-        curie = 'X:finger'
-        root = "X:torso"
-        label_predicate = 'X:label'
+        curie = Curie('X:finger')
+        root = Curie('X:torso')
+        label_predicate = Curie('X:label')
         expected = {
-            Node("X:finger", "finger"),
-            Node("X:hand",   "hand"),
-            Node("X:arm",    "arm"),
-            Node("X:torso",  "torso"),
-            Node("X:foot",   None),
+            Node(Curie('X:finger'), 'finger'),
+            Node(Curie('X:hand'),   'hand'),
+            Node(Curie('X:arm'),    'arm'),
+            Node(Curie('X:torso'),  'torso'),
+            Node(Curie('X:foot'),    None),
         }
         results = self.graph.get_closure(
             node_id=curie, root=root, label=label_predicate
@@ -54,14 +56,14 @@ class TestRDFGraph():
         assert results == expected
 
     def test_get_closure_not_reflexive(self):
-        curie = 'X:finger'
-        root = "X:torso"
-        label_predicate = 'X:label'
+        curie = Curie('X:finger')
+        root = Curie('X:torso')
+        label_predicate = Curie('X:label')
         expected = {
-            Node("X:hand",   "hand"),
-            Node("X:arm",    "arm"),
-            Node("X:torso",  "torso"),
-            Node("X:foot",   None),
+            Node(Curie('X:hand'),   'hand'),
+            Node(Curie('X:arm'),    'arm'),
+            Node(Curie('X:torso'),  'torso'),
+            Node(Curie('X:foot'),    None),
         }
         results = self.graph.get_closure(
             node_id=curie, root=root, label=label_predicate, reflexive=False
@@ -70,15 +72,15 @@ class TestRDFGraph():
         assert results == expected
 
     def test_get_closure_no_root(self):
-        curie = 'X:finger'
-        predicate = 'X:partOf'
-        label_predicate = 'X:label'
+        curie = Curie('X:finger')
+        predicate = Curie('X:partOf')
+        label_predicate = Curie('X:label')
         expected = {
-            Node("X:finger", "finger"),
-            Node("X:hand",   "hand"),
-            Node("X:arm",    "arm"),
-            Node("X:torso",  "torso"),
-            Node("X:body",   "body"),
+            Node(Curie('X:finger'), 'finger'),
+            Node(Curie('X:hand'),   'hand'),
+            Node(Curie('X:arm'),    'arm'),
+            Node(Curie('X:torso'),  'torso'),
+            Node(Curie('X:body'),   'body'),
         }
         results = self.graph.get_closure(
             node_id=curie, edge=predicate, label=label_predicate
@@ -87,16 +89,16 @@ class TestRDFGraph():
         assert results == expected
 
     def test_get_descendents(self):
-        curie = 'X:torso'
-        predicate = 'X:partOf'
-        label_predicate = 'X:label'
+        curie = Curie('X:torso')
+        predicate = Curie('X:partOf')
+        label_predicate = Curie('X:label')
         expected = {
-            Node("X:finger", "finger"),
-            Node("X:hand",   "hand"),
-            Node("X:arm",    "arm")
+            Node(Curie('X:finger'), 'finger'),
+            Node(Curie('X:hand'),   'hand'),
+            Node(Curie('X:arm'),    'arm')
         }
 
-        results = self.graph.get_descendents(
+        results = self.graph.get_descendants(
             curie, predicate, label_predicate
         )
 
@@ -104,38 +106,39 @@ class TestRDFGraph():
         assert results == expected
 
     def test_get_object_literals(self):
-        curie = 'X:foo'
-        predicate = 'X:hasExactSynonym'
-        expected = {Literal("bar"), Literal("baz")}
+        curie = Curie('X:foo')
+        predicate = Curie('X:hasExactSynonym')
+        expected = {Literal('bar'), Literal('baz')}
         results = {obj for obj in self.graph.get_objects(curie, predicate)}
         assert results == expected
 
     def test_get_objects(self):
-        curie = 'X:finger'
-        predicate = 'X:partOf'
-        expected = {URIRef('http://x.org/X_hand')}
+        curie = Curie('X:finger')
+        predicate = Curie('X:partOf')
+        expected = {Curie('X:hand')}
         results = {obj for obj in self.graph.get_objects(curie, predicate)}
         assert results == expected
 
     def test_get_subjects(self):
-        curie = 'X:hand'
-        predicate = 'X:partOf'
-        expected = {URIRef('http://x.org/X_finger')}
+        curie = Curie('X:hand')
+        predicate = Curie('X:partOf')
+        expected = {Curie('X:finger')}
         results = {sub for sub in self.graph.get_subjects(curie, predicate)}
         assert results == expected
 
-    def test_curie_to_iri(self):
-        curie = 'HP:1234'
-        iri = 'http://purl.obolibrary.org/obo/HP_1234'
-        assert self.graph._curie_to_iri(curie) == iri
+    def test_get_subjects_literal(self):
+        literal = Literal('hand')
+        predicate = Curie('X:label')
+        expected = {Curie('X:hand')}
+        results = {sub for sub in self.graph.get_subjects(literal, predicate)}
+        assert results == expected
 
-    def test_iri_to_curie(self):
-        curie = 'HP:1234'
-        iri = 'http://purl.obolibrary.org/obo/HP_1234'
-        ns = 'HP'
-        assert self.graph._iri_to_curie(iri, ns) == curie
+    def test_get_predicate_object(self):
+        curie = Curie('X:hand')
+        expected = {(Curie('X:label'), Literal('hand')),
+                    (Curie('X:partOf'), Curie('X:arm')),
+        }
 
-    def test_iri_to_curie_no_ns(self):
-        curie = 'HP:1234'
-        iri = 'http://purl.obolibrary.org/obo/HP_1234'
-        assert self.graph._iri_to_curie(iri) == curie
+        results = {(pred, obj) for (pred, obj) in self.graph.get_predicate_objects(curie)}
+        assert results == expected
+

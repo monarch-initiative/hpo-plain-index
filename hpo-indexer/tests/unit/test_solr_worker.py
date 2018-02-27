@@ -1,6 +1,9 @@
 from HPOIndexer.graph.RDFGraph import RDFGraph
 from HPOIndexer.SolrWorker import SolrWorker
 from HPOIndexer.util.OWLUtil import OWLUtil
+from HPOIndexer.util.CurieUtil import CurieUtil
+from HPOIndexer.model.models import Curie
+
 import os
 
 synonym_ontology = os.path.join(os.path.dirname(__file__), 'resources/synonym-ontology.ttl')
@@ -13,7 +16,8 @@ class TestSolrWorker():
             'HP': 'http://purl.obolibrary.org/obo/HP_',
             'X': 'http://x.org/X_'
         }
-        graph = RDFGraph(curie_map)
+        curie_util = CurieUtil(curie_map)
+        graph = RDFGraph(curie_util)
         graph.parse(synonym_ontology, format='ttl')
         owl_util = OWLUtil(graph)
         # See integration  tests for light testing with real solr instance
@@ -24,7 +28,7 @@ class TestSolrWorker():
         self.solr_worker = None
 
     def test_get_synonyms(self):
-        curie = 'X:foo'
+        curie = Curie('X:foo')
         synonym_types = [
             'X:hasExactSynonym',
             'X:hasNarrowSynonym'
