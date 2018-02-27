@@ -3,9 +3,17 @@
 @prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-
 X:foo X:hasExactSynonym "bar" .
+X:bnode1 X:annotatedSource X:foo .
+X:bnode1 X:hasSynonymType <http://purl.obolibrary.org/obo/hp.owl#layperson> .
+X:bnode1 X:annotatedTarget "bar" .
+
 X:foo X:hasExactSynonym "baz" .
+
+X:foo X:hasNarrowSynonym "qux" .
+X:bnode1 X:annotatedSource X:foo .
+X:bnode1 X:hasSynonymType <http://purl.obolibrary.org/obo/hp.owl#layperson> .
+X:bnode1 X:annotatedTarget "qux" .
 
 X:finger X:partOf X:hand .
 X:hand X:partOf X:arm .

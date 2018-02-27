@@ -1,6 +1,6 @@
 from HPOIndexer.graph.RDFGraph import RDFGraph
 from HPOIndexer.util.CurieUtil import CurieUtil
-from rdflib import URIRef, Literal
+from rdflib import Literal
 from HPOIndexer.model.models import Node, Curie
 import os
 
@@ -50,7 +50,7 @@ class TestRDFGraph():
             Node(Curie('X:foot'),    None),
         }
         results = self.graph.get_closure(
-            node_id=curie, root=root, label=label_predicate
+            node=curie, root=root, label_predicate=label_predicate
         )
         results = set(results)
         assert results == expected
@@ -66,7 +66,7 @@ class TestRDFGraph():
             Node(Curie('X:foot'),    None),
         }
         results = self.graph.get_closure(
-            node_id=curie, root=root, label=label_predicate, reflexive=False
+            node=curie, root=root, label_predicate=label_predicate, reflexive=False
         )
         results = set(results)
         assert results == expected
@@ -83,12 +83,12 @@ class TestRDFGraph():
             Node(Curie('X:body'),   'body'),
         }
         results = self.graph.get_closure(
-            node_id=curie, edge=predicate, label=label_predicate
+            node=curie, edge=predicate, label_predicate=label_predicate
         )
         results = set(results)
         assert results == expected
 
-    def test_get_descendents(self):
+    def test_get_descendants(self):
         curie = Curie('X:torso')
         predicate = Curie('X:partOf')
         label_predicate = Curie('X:label')

@@ -7,42 +7,52 @@ class Graph(metaclass=ABCMeta):
 
     @abstractmethod
     def get_closure(self,
-                    node_id: str,
-                    edge: Optional[str],
-                    root: Optional[str],
-                    label: Optional[str],
+                    node_id: Any,
+                    edge: Optional[Any],
+                    root: Optional[Any],
+                    label: Optional[Any],
                     reflexive: Optional[bool]) -> Sequence[Node]:
+        """
+        :return: Returns a sequence of nodes
+        """
         pass
 
     @abstractmethod
     def get_descendants(self,
-                        node_id: str,
-                        edge: Optional[str],
-                        label: Optional[str]) -> Sequence[Node]:
-        pass
-
-    @abstractmethod
-    def get_objects(self, subject: Any, predicate: Any) -> Iterator[str]:
+                        node_id: Any,
+                        edge: Optional[Any],
+                        label: Optional[Any]) -> Sequence[Node]:
         """
-        :return: Returns an iterator of curie formatted identifiers
+        :return: Returns a sequence of nodes
         """
         pass
 
     @abstractmethod
-    def get_subjects(self, object: Any, predicate: Any) -> Iterator[str]:
+    def get_objects(self, subject: Any, predicate: Any) -> Iterator[Any]:
         """
-        :return: Returns an iterator of curie formatted identifiers
+        :return: Returns an iterator of nodes
         """
         pass
 
     @abstractmethod
-    def get_predicate_objects(self, subject: Any) -> Iterator[Tuple[str,str]]:
+    def get_subjects(self, object: Any, predicate: Any) -> Iterator[Any]:
         """
-        :return: Returns an iterator of 2 item tuples of either
-        (curie: str, curie: str) or (curie: str, literal: str)
+        :return: Returns an iterator of nodes
+        """
+        pass
+
+    @abstractmethod
+    def get_predicate_objects(self, subject: Any) -> Iterator[Tuple[Any,Any]]:
+        """
+        :return: Returns an iterator of 2 item tuples of nodes that
+        correspond to predicates and objects
         """
         pass
 
     @abstractmethod
     def parse(self, source, format):
+        pass
+
+    @abstractmethod
+    def query(self, query: str):
         pass

@@ -1,17 +1,12 @@
 from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.model.models import Axiom, Curie
-from typing import List, Union
+from typing import List, Union, Dict
 from rdflib.term import Literal
 
 
 class OWLUtil():
     """
     Utility for interacting with OWL graphs
-
-    Note we're reinventing the wheel here, the argument
-    could be made that we run any owl ontology
-    through a reasoner before operating on it, for example,
-    via owltools.
     """
     ANNOTATED_SOURCE = 'owl:annotatedSource'
     ANNOTATED_PROPERTY = 'owl:annotatedProperty'
@@ -112,3 +107,23 @@ class OWLUtil():
 
         return axioms
 
+    def get_synonyms(self,
+                     curie: Curie,
+                     synonym_types: List[str]) -> Dict[str, List[str]]:
+        """
+        :param curie: curie formatted id
+        :param synonym_types: Optional list of synonym predicates
+        :return: Returns a dict with the structure:
+        {
+            "X:someType": ["foo","bar"],
+            "X:someOtherType": ["baz"]
+        }
+        """
+        synonym_object = {}
+
+        for synonym_type in synonym_types:
+            synonym_object[synonym_type] = \
+                [str(synonym)
+                 for synonym in self.graph.get_objects(curie, Curie(synonym_type))]
+
+        return synonym_object

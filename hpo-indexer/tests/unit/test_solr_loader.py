@@ -1,5 +1,5 @@
 from HPOIndexer.graph.RDFGraph import RDFGraph
-from HPOIndexer.SolrWorker import SolrWorker
+from HPOIndexer.SolrLoader import SolrLoader
 from HPOIndexer.util.OWLUtil import OWLUtil
 from HPOIndexer.util.CurieUtil import CurieUtil
 from HPOIndexer.model.models import Curie
@@ -8,7 +8,7 @@ import os
 hp_ontology = os.path.join(os.path.dirname(__file__), 'resources/hp-ontology.ttl')
 
 
-class TestSolrWorker():
+class TestSolrLoader():
 
     def setup(self):
         curie_map = {
@@ -26,35 +26,16 @@ class TestSolrWorker():
             'BFO': 'http://purl.obolibrary.org/obo/BFO_',
             'X': 'http://x.org/X_'
         }
-        fake_list = []
         curie_util = CurieUtil(curie_map)
         graph = RDFGraph(curie_util)
         graph.parse(hp_ontology, format='ttl')
         owl_util = OWLUtil(graph)
         # See integration  tests for light testing with real solr instance
         solr = 'http://fake-solr.org'
-        self.solr_worker = SolrWorker(
-            fake_list, graph, owl_util, curie_util, solr)
+        self.solr_loader = SolrLoader(graph, owl_util, curie_util, solr)
 
     def teardown(self):
-        self.solr_worker = None
+        self.solr_loader = None
 
-    def test_get_anatomy_adheres_in(self):
-        phenotype = Curie('HP:0000046')
-        results = self.solr_worker.get_anatomy_terms(phenotype)
-        result = list(results)
-        assert len(result) == 1
-        assert str(result[0]) == "UBERON:0001300"
-
-    def test_get_anatomy_adheres_in_part_of(self):
-        phenotype = Curie('HP:0000047')
-        results = self.solr_worker.get_anatomy_terms(phenotype)
-        result = list(results)
-        assert len(result) == 1
-        assert str(result[0]) == "UBERON:0001301"
-
-    def test_get_anatomy_different_rel(self):
-        phenotype = Curie('HP:0000048')
-        results = self.solr_worker.get_anatomy_terms(phenotype)
-        result = list(results)
-        assert len(result) == 0
+    def test_get_lay_syns(self):
+        assert 1

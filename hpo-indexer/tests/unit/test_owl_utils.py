@@ -2,7 +2,7 @@ from HPOIndexer.graph.RDFGraph import RDFGraph
 from HPOIndexer.util.CurieUtil import CurieUtil
 from HPOIndexer.util.OWLUtil import OWLUtil
 from HPOIndexer.model.models import Axiom, Curie
-from rdflib import Literal, XSD
+from rdflib import Literal
 import os
 
 owl_ontology = os.path.join(os.path.dirname(__file__), 'resources/owl-ontology.ttl')
@@ -36,10 +36,24 @@ class TestOWLUtils():
             target=target,
             parts={
                 Curie('rdf:type'): [Curie('owl:Axiom')],
-                Curie('oboInOwl:hasSynonymType'): [Curie('X:layperson')],
+                Curie('oboInOwl:hasSynonymType'): [Curie('X:layperson')]
             }
         )
         results = self.owl_util.get_axioms(source, property, target)
         assert len(results) == 1
         assert results[0] == expected
 
+    def test_get_synonyms(self):
+        curie = Curie('X:foo')
+        synonym_types = [
+            'X:hasExactSynonym',
+            'X:hasNarrowSynonym'
+        ]
+        expected = {
+            'X:hasExactSynonym': {'bar', 'baz'},
+            'X:hasNarrowSynonym': ['qux']
+        }
+        results = self.owl_util.get_synonyms(curie, synonym_types)
+        # Convert list to set since order is not guaranteed
+        results['X:hasExactSynonym'] = set(results['X:hasExactSynonym'])
+        assert results == expected

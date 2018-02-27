@@ -21,7 +21,7 @@ NodeType = TypeVar('NodeType', Curie, Literal, URIRef, BNode)
 SubjectType = TypeVar('SubjectType', Curie, URIRef, BNode)
 
 # All node types that could be a predicate, excludes literals and bnodes
-PredicateType = TypeVar('PropertyType', Curie, URIRef)
+PredicateType = TypeVar('PredicateType', Curie, URIRef)
 
 
 class Node(NamedTuple):

@@ -1,5 +1,5 @@
 from HPOIndexer.graph.Graph import Graph
-from HPOIndexer.model.models import Node, Curie
+from HPOIndexer.model.models import NodeType, SubjectType, PredicateType, Node, Curie
 from rdflib import Graph as RDFLibGraph
 from rdflib import Namespace, URIRef, Literal
 from typing import List, Optional, Iterator, Union, Tuple
@@ -7,7 +7,8 @@ from typing import List, Optional, Iterator, Union, Tuple
 
 class RDFGraph(RDFLibGraph, Graph):
     """
-    RDF Graph that extends rdflib.graph
+    Graph class that extends rdflib.graph and provides
+    support for Curies
     """
 
     def __init__(self, curie_util):
@@ -17,48 +18,57 @@ class RDFGraph(RDFLibGraph, Graph):
             self.bind(prefix, Namespace(reference))
 
     def get_closure(self,
-                    node_id: Curie,
-                    edge: Optional[Curie]=None,
-                    root: Optional[Curie]=None,
-                    label: Optional[str] = 'rdfs:label',
+                    node: NodeType,
+                    edge: Optional[PredicateType]=None,
+                    root: Optional[SubjectType]=None,
+                    label_predicate: Optional[str] = 'rdfs:label',
                     reflexive: Optional[bool] = True) -> List[Node]:
         nodes = []
-        node_iri = URIRef(self.curie_util.curie_to_iri(node_id))
-        label_iri = URIRef(self.curie_util.curie_to_iri(label))
-        if edge is not None:
+        root_seen = {}
+        if isinstance(node, Curie):
+            node = URIRef(self.curie_util.curie_to_iri(node))
+        if isinstance(edge, Curie):
             edge = URIRef(self.curie_util.curie_to_iri(edge))
+        if isinstance(root, Curie):
+            root = URIRef(self.curie_util.curie_to_iri(root))
         if root is not None:
-            root_iri = URIRef(self.curie_util.curie_to_iri(root))
-            root = {root_iri: 1}
-        for obj in self.transitive_objects(node_iri, edge, root):
+            root_seen = {root: 1}
+        if isinstance(label_predicate, Curie):
+            label_predicate = URIRef(self.curie_util.curie_to_iri(label_predicate))
+        for obj in self.transitive_objects(node, edge, root_seen):
             if isinstance(obj, Literal):
                 continue
-            if not reflexive and node_iri == obj:
+            if not reflexive and node == obj:
                 continue
-            node = self._make_node(obj, label_iri)
+            node = self._make_node(obj, label_predicate)
             nodes.append(node)
 
         # Add root to graph
         if root is not None:
-            nodes.append(self._make_node(root_iri, label_iri))
+            nodes.append(self._make_node(root, label_predicate))
 
         return nodes
 
     def get_descendants(self,
-                        node_id: Curie,
-                        edge: Optional[Curie] = None,
-                        label: Optional[Curie] = 'rdfs:label') -> List[Node]:
+                        node: NodeType,
+                        edge: Optional[PredicateType] = None,
+                        label_predicate: Optional[PredicateType] = 'rdfs:label')\
+            -> List[Node]:
+
         nodes = []
-        node_iri = URIRef(self.curie_util.curie_to_iri(node_id))
-        label_iri = URIRef(self.curie_util.curie_to_iri(label))
-        if edge is not None:
+        if isinstance(node, Curie):
+            node = URIRef(self.curie_util.curie_to_iri(node))
+        if isinstance(label_predicate, Curie):
+            label_predicate = \
+                URIRef(self.curie_util.curie_to_iri(label_predicate))
+        if isinstance(edge, Curie):
             edge = URIRef(self.curie_util.curie_to_iri(edge))
-        for sub in self.transitive_subjects(edge, node_iri):
-            if node_iri == sub:
+        for sub in self.transitive_subjects(edge, node):
+            if node == sub:
                 continue
             if isinstance(sub, Literal):
                 continue
-            node = self._make_node(sub, label_iri)
+            node = self._make_node(sub, label_predicate)
             nodes.append(node)
 
         return nodes
@@ -76,8 +86,8 @@ class RDFGraph(RDFLibGraph, Graph):
         return Node(curie, label)
 
     def get_objects(self,
-                    subject:   Optional[Curie],
-                    predicate: Optional[Union[Curie ,Literal]])\
+                    subject:   Optional[SubjectType],
+                    predicate: Optional[PredicateType]) \
             -> Iterator[Union[Literal, Curie]]:
         """
         Wrapper for rdflib.Graph.objects
@@ -85,9 +95,9 @@ class RDFGraph(RDFLibGraph, Graph):
         :param predicate: curie formatted identifier
         :return: Iterator of URIRefs or Literals
         """
-        if subject is not None:
+        if isinstance(subject, Curie):
             subject = URIRef(self.curie_util.curie_to_iri(subject))
-        if predicate is not None:
+        if isinstance(predicate, Curie):
             predicate = URIRef(self.curie_util.curie_to_iri(predicate))
 
         for obj in self.objects(subject, predicate):
@@ -96,17 +106,17 @@ class RDFGraph(RDFLibGraph, Graph):
             yield obj
 
     def get_subjects(self,
-                     obj:       Optional[Union[Curie, Literal]],
-                     predicate: Optional[Curie]) -> Iterator[Curie]:
+                     obj:       Optional[NodeType],
+                     predicate: Optional[PredicateType]) -> Iterator[Curie]:
         """
         Wrapper for rdflib.Graph.subjects
         :param obj: curie or literal
         :param predicate: curie
         :return: Iterator of subjects (Curie)
         """
-        if obj is not None and isinstance(obj, Curie):
+        if isinstance(obj, Curie):
             obj = URIRef(self.curie_util.curie_to_iri(obj))
-        if predicate is not None:
+        if isinstance(predicate, Curie):
             predicate = URIRef(self.curie_util.curie_to_iri(predicate))
 
         for subject in self.subjects(predicate, obj):
@@ -116,13 +126,16 @@ class RDFGraph(RDFLibGraph, Graph):
                               subject: Curie) \
             -> Iterator[Tuple[Curie, Union[Curie, Literal]]]:
 
-        subject = URIRef(self.curie_util.curie_to_iri(subject))
+        if isinstance(subject, Curie):
+            subject = URIRef(self.curie_util.curie_to_iri(subject))
         for predicate, obj in self.predicate_objects(subject):
             if not isinstance(obj, Literal):
                 obj = self.curie_util.iri_to_curie(obj)
             yield self.curie_util.iri_to_curie(str(predicate)), obj
 
-    def _make_node(self, iri: URIRef, label_predicate: URIRef) -> Node:
+    def _make_node(self,
+                   iri: URIRef,
+                   label_predicate: URIRef) -> Node:
         curie = self.curie_util.iri_to_curie(str(iri))
         label = None
         labels = self.objects(iri, label_predicate)
