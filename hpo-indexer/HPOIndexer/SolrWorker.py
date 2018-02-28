@@ -89,13 +89,14 @@ class SolrWorker():
             # Get anatomy closure
             anatomy_closure = []
             anatomy_closure_label = []
-
+            """
             for anatomy in self.get_anatomy_terms(term):
                 for node in self.graph.get_closure(anatomy,
                                                    SolrWorker.PART_OF,
                                                    SolrWorker.UBER_ROOT):
                     anatomy_closure.append(node.id)
                     anatomy_closure_label.append(node.label)
+            """
 
             doc = PLDoc(
                 id=curie_id,
@@ -164,18 +165,22 @@ class SolrWorker():
         :return: Iterator return anatomy curies
         """
         anatomy_terms = []
+
         query = \
         """
             SELECT ?anatomy
             WHERE {{
-                VALUES ?relation {{ RO:0000052 RO:0002314 }} 
-                {0}  owl:equivalentClass [ a owl:Restriction ;
+                {0} owl:equivalentClass [ 
                     owl:onProperty BFO:0000051 ;
-                    owl:someValuesFrom [ a owl:Class ;
-                        owl:intersectionOf ( ?quality [ a owl:Restriction ;
+                    owl:someValuesFrom [ 
+                        owl:intersectionOf ( ?quality [ 
                             owl:onProperty ?relation ;
-                            owl:someValuesFrom ?anatomy ] ) ] ] .
+                            owl:someValuesFrom ?anatomy ] [ 
+                            owl:onProperty RO:0002573 ;
+                            owl:someValuesFrom PATO:0000460 ] ) ] ] .
+                FILTER (?relation IN (RO:0000052, RO:0002314 ) )
             }}
+            
         """.format(phenotype.id)
 
         query_result = self.graph.query(query)
