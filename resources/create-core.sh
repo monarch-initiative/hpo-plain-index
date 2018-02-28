@@ -21,4 +21,4 @@ fi
 
 /opt/solr/bin/solr stop
 
-exec solr -f
+exec solr -f -m 2g

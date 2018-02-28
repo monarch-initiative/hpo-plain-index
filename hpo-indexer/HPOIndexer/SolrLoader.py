@@ -40,8 +40,8 @@ class SolrLoader():
             help='Path to solr client')
 
         parser.add_argument(
-            '--processes', '-p', type=str, required=False,
-            default=multiprocessing.cpu_count(),
+            '--processes', '-p', type=int, required=False,
+            default=int(multiprocessing.cpu_count()/2),
             help='Number of processes to spawn')
 
         args = parser.parse_args()
@@ -59,6 +59,10 @@ class SolrLoader():
         self.graph.parse('http://purl.obolibrary.org/obo/upheno/imports/uberon_import.owl',
                          format='xml')
         logger.info("Finished loading ontologies")
+
+        # Load inferred edges
+        logger.info("Processing owl restrictions and intersections")
+        self.owl_util.process_some_values_from()
 
         logger.info("Getting phenotypes with lay person synonyms")
         terms_w_lay_syns = self.get_terms_with_lay_syns()
@@ -153,8 +157,20 @@ class SolrLoader():
             'PATO': 'http://purl.obolibrary.org/obo/PATO_',
             'UBERON': 'http://purl.obolibrary.org/obo/UBERON_',
             'BFO': 'http://purl.obolibrary.org/obo/BFO_',
-            'IAO': 'http://purl.obolibrary.org/obo/IAO_'
+            'IAO': 'http://purl.obolibrary.org/obo/IAO_',
+            'CL': 'http://purl.obolibrary.org/obo/CL_',
+            'PR': 'http://purl.obolibrary.org/obo/PR_',
+            'GO': 'http://purl.obolibrary.org/obo/GO_',
+            'CHEBI': 'http://purl.obolibrary.org/obo/CHEBI_',
+            'MPATH': 'http://purl.obolibrary.org/obo/MPATH_',
+            'NCIT': 'http://purl.obolibrary.org/obo/NCIT_',
+            'NBO': 'http://purl.obolibrary.org/obo/NBO_',
+            'logic': 'http://purl.obolibrary.org/obo/hp/hp-logical-definitions-subq#',
+            'HsapDv': 'http://purl.obolibrary.org/obo/HsapDv_',
+            'BSPO': 'http://purl.obolibrary.org/obo/BSPO_',
+            'DOID': 'http://purl.obolibrary.org/obo/DOID_'
         }
+
 
 if __name__ == "__main__":
     loader = SolrLoader()

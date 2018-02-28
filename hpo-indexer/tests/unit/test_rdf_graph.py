@@ -137,11 +137,21 @@ class TestRDFGraph():
         assert results == expected
 
     def test_get_predicate_object(self):
-        curie = Curie('X:hand')
-        expected = {(Curie('X:label'), Literal('hand')),
-                    (Curie('X:partOf'), Curie('X:arm')),
+        curie = Curie('X:finger')
+        expected = {(Curie('X:label'), Literal('finger')),
+                    (Curie('X:partOf'), Curie('X:hand')),
         }
 
         results = {(pred, obj) for (pred, obj) in self.graph.get_predicate_objects(curie)}
         assert results == expected
 
+    def test_prop_chain(self):
+        curie = Curie('X:finger')
+        prop_chain = [
+            Curie('X:partOf'),
+            'X:partOf|X:randomRelation'
+        ]
+        expected = {Curie('X:foot'), Curie('X:arm')}
+
+        results = {obj for obj in self.graph.get_objects(curie, prop_chain)}
+        assert results == expected

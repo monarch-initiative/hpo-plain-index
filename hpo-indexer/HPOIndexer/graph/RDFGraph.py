@@ -2,7 +2,9 @@ from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.model.models import NodeType, SubjectType, PredicateType, Node, Curie
 from rdflib import Graph as RDFLibGraph
 from rdflib import Namespace, URIRef, Literal, BNode
-from typing import List, Optional, Iterator, Union, Tuple
+from typing import List, Optional, Iterator, Union, Tuple, Any
+import re
+import copy
 
 
 class RDFGraph(RDFLibGraph, Graph):
@@ -36,7 +38,7 @@ class RDFGraph(RDFLibGraph, Graph):
         if isinstance(label_predicate, Curie):
             label_predicate = URIRef(self.curie_util.curie_to_iri(label_predicate))
         for obj in self.transitive_objects(node, edge, root_seen):
-            if isinstance(obj, Literal):
+            if isinstance(obj, Literal) or isinstance(obj, BNode):
                 continue
             if not reflexive and node == obj:
                 continue
@@ -74,6 +76,42 @@ class RDFGraph(RDFLibGraph, Graph):
 
         return nodes
 
+    def _get_objects_from_prop_chain(
+            self,
+            subject: Optional[SubjectType],
+            predicates: List[Any]) \
+        -> Iterator[Union[Literal, Curie]]:
+        """
+        Traverses a property chain and returns an iterator
+        of objects at the end of that chain
+        :param subject: Optional curie
+        :param predicates: A list of either Curies, or a string
+                           of pipe delimitted curies (as strings)
+                           for example:
+                           [
+                             Curie("foo:bar"),
+                             "foo:baz|foo:qux"
+                           ]
+        :return:
+        """
+        # Don't mutate the reference
+        predicate_copy = copy.copy(predicates)
+        if len(predicates) is 1:
+            predicate = predicate_copy.pop(0)
+            predicate_list = RDFGraph._convert_curie_list(predicate)
+            for pred in predicate_list:
+                for obj in self.get_objects(subject, pred):
+                    if isinstance(obj, URIRef):
+                        obj = self.curie_util.iri_to_curie(obj)
+                    yield obj
+        else:
+            predicate = predicate_copy.pop(0)
+            predicate_list = RDFGraph._convert_curie_list(predicate)
+            for pred in predicate_list:
+                for obj in self.get_objects(subject, pred):
+                    for obj in self._get_objects_from_prop_chain(obj, predicate_copy):
+                        yield obj
+
     def _make_node(self, iri: URIRef, label_predicate: URIRef) -> Node:
         curie = self.curie_util.iri_to_curie(str(iri))
         label = None
@@ -87,8 +125,8 @@ class RDFGraph(RDFLibGraph, Graph):
         return Node(curie, label)
 
     def get_objects(self,
-                    subject:   Optional[SubjectType],
-                    predicate: Optional[PredicateType]) \
+                    subject:   Optional[SubjectType] = None,
+                    predicate: Union[None, List, PredicateType] = None ) \
             -> Iterator[Union[Literal, Curie]]:
         """
         Wrapper for rdflib.Graph.objects
@@ -96,15 +134,19 @@ class RDFGraph(RDFLibGraph, Graph):
         :param predicate: curie formatted identifier
         :return: Iterator of URIRefs or Literals
         """
-        if isinstance(subject, Curie):
-            subject = URIRef(self.curie_util.curie_to_iri(subject))
-        if isinstance(predicate, Curie):
-            predicate = URIRef(self.curie_util.curie_to_iri(predicate))
+        if isinstance(predicate, List):
+            for obj in self._get_objects_from_prop_chain(subject, predicate):
+                yield obj
+        else:
+            if isinstance(subject, Curie):
+                subject = URIRef(self.curie_util.curie_to_iri(subject))
+            if isinstance(predicate, Curie):
+                predicate = URIRef(self.curie_util.curie_to_iri(predicate))
 
-        for obj in self.objects(subject, predicate):
-            if not isinstance(obj, Literal):
-                obj = self.curie_util.iri_to_curie(obj)
-            yield obj
+            for obj in self.objects(subject, predicate):
+                if isinstance(obj, URIRef):
+                    obj = self.curie_util.iri_to_curie(obj)
+                yield obj
 
     def get_subjects(self,
                      obj:       Optional[NodeType],
@@ -136,6 +178,19 @@ class RDFGraph(RDFLibGraph, Graph):
                 obj = self.curie_util.iri_to_curie(obj)
             yield self.curie_util.iri_to_curie(str(predicate)), obj
 
+    def add_triple(self,
+                   subject: NodeType,
+                   predicate: PredicateType,
+                   obj: NodeType) -> None:
+
+        if isinstance(subject, Curie):
+            subject = URIRef(self.curie_util.curie_to_iri(subject))
+        if isinstance(predicate, Curie):
+            predicate = URIRef(self.curie_util.curie_to_iri(predicate))
+        if isinstance(obj, Curie):
+            obj = URIRef(self.curie_util.curie_to_iri(obj))
+        self.add((subject, predicate, obj))
+
     def _make_node(self,
                    iri: URIRef,
                    label_predicate: URIRef) -> Node:
@@ -149,3 +204,12 @@ class RDFGraph(RDFLibGraph, Graph):
                 raise ValueError("More than one label for {}".format(curie))
             label = str(lab)
         return Node(curie, label)
+
+    @staticmethod
+    def _convert_curie_list(curies: str) -> List[Curie]:
+        if isinstance(curies, str) and re.match(r'\\|', curies):
+            curie_list = curies.split("|")
+            curie_list = [Curie(curie) for curie in curie_list]
+        else:
+            curie_list = [curies]
+        return curie_list

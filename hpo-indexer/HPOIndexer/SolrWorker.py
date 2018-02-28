@@ -2,7 +2,7 @@ from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.util.OWLUtil import OWLUtil
 from HPOIndexer.util.CurieUtil import CurieUtil
 from HPOIndexer.model.models import Curie, PLDoc
-from typing import List, Optional, Iterator, Iterable
+from typing import List, Optional, Set, Iterable
 from rdflib import Literal
 from multiprocessing import Lock
 import requests
@@ -89,14 +89,12 @@ class SolrWorker():
             # Get anatomy closure
             anatomy_closure = []
             anatomy_closure_label = []
-            """
             for anatomy in self.get_anatomy_terms(term):
                 for node in self.graph.get_closure(anatomy,
                                                    SolrWorker.PART_OF,
                                                    SolrWorker.UBER_ROOT):
                     anatomy_closure.append(node.id)
                     anatomy_closure_label.append(node.label)
-            """
 
             doc = PLDoc(
                 id=curie_id,
@@ -157,34 +155,19 @@ class SolrWorker():
                     is_lay = True
         return is_lay
 
-
-    def get_anatomy_terms(self, phenotype: Curie) -> Iterator[Curie]:
+    def get_anatomy_terms(self, phenotype: Curie) -> Set[Curie]:
         """
         Note this is dependent on a specific curie map
         :param phenotype: list of phenotypes
         :return: Iterator return anatomy curies
         """
-        anatomy_terms = []
-
-        query = \
-        """
-            SELECT ?anatomy
-            WHERE {{
-                {0} owl:equivalentClass [ 
-                    owl:onProperty BFO:0000051 ;
-                    owl:someValuesFrom [ 
-                        owl:intersectionOf ( ?quality [ 
-                            owl:onProperty ?relation ;
-                            owl:someValuesFrom ?anatomy ] [ 
-                            owl:onProperty RO:0002573 ;
-                            owl:someValuesFrom PATO:0000460 ] ) ] ] .
-                FILTER (?relation IN (RO:0000052, RO:0002314 ) )
-            }}
-            
-        """.format(phenotype.id)
-
-        query_result = self.graph.query(query)
-        for res in query_result:
-            yield self.curie_util.iri_to_curie(res[0])
+        anatomy_terms = set()
+        property_chains = [
+            [Curie('owl:equivalentClass'), Curie('BFO:0000051'), Curie('RO:0000052')],
+            [Curie('owl:equivalentClass'), Curie('BFO:0000051'), Curie('RO:0002314')]
+        ]
+        for property_chain in property_chains:
+            for anat in self.graph.get_objects(phenotype, property_chain):
+                anatomy_terms.add(anat)
 
         return anatomy_terms

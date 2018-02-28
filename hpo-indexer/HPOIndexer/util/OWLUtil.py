@@ -2,6 +2,7 @@ from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.model.models import Axiom, Curie
 from typing import List, Union, Dict, Iterable
 from rdflib.term import Literal
+import copy
 
 
 class OWLUtil():
@@ -127,3 +128,90 @@ class OWLUtil():
                  for synonym in self.graph.get_objects(curie, Curie(synonym_type))]
 
         return synonym_object
+
+    def process_some_values_from(self) -> None:
+        """
+        Based on Scigraphs processSomeValuesFrom,
+        https://github.com/SciGraph/SciGraph/blob/96e098b/SciGraph-core/
+        src/main/java/io/scigraph/owlapi/OwlPostprocessor.java#L71
+
+        Creates inferred edges, from the pattern:
+        ?restriction rdf:type owl:Restriction
+        ?restriction owl:onProperty ?property
+        ?restriction owl:someValuesFrom ?onClass
+
+        infers:
+        ?restriction ?property ?onClass
+
+        :return: None
+        """
+
+        for restriction in self.graph.get_subjects(Curie('owl:Restriction'),
+                                                   Curie('rdf:type')):
+            on_property = Curie('owl:onProperty')
+            some_values_from = Curie('owl:someValuesFrom')
+            prop = self.graph.get_objects(restriction, on_property)
+            cls = self.graph.get_objects(restriction, some_values_from)
+            props = list(prop)
+            classes = list(cls)
+            target_class = classes[0]
+            prop = props[0]
+
+            if len(props) > 1:
+                raise ValueError
+            if len(classes) > 1:
+                raise ValueError
+
+            self.graph.add_triple(restriction, prop, target_class)
+
+            # Process intersection paths:
+            # owl:intersectionOf rdf:first ?class|restriction
+            # owl:intersectionOf rdf:rest rdf:first ?class|restriction
+            # owl:intersectionOf rdf:rest rdf:rest rdf:first ?class|restriction
+
+            # Path to nils
+            # Until owl:intersectionOf rdf:rest* rdf:nil
+
+            # Create the triple:
+            # ?restriction ?property (eg has_part) ?class/restriction
+
+            property_chain = [Curie('owl:intersectionOf'), Curie('rdf:first')]
+            nil_chain = [Curie('owl:intersectionOf'), Curie('rdf:rest')]
+            continue2next_restriction = False
+
+            for obj in self.graph.get_objects(target_class, property_chain):
+                self.graph.add_triple(restriction, prop, obj)
+
+            for obj in self.graph.get_objects(target_class, nil_chain):
+                if obj == Curie('rdf:nil'):
+                    continue2next_restriction = True
+
+            if continue2next_restriction:
+                continue
+
+            max_iterations = 50
+            iterations = 0
+            break_while = False
+
+            while iterations < max_iterations:
+                property_chain[1:1] = [Curie('rdf:rest')]
+                nil_chain.append(Curie('rdf:rest'))
+                obj_iterator = self.graph.get_objects(target_class, property_chain)
+                nil_iterator = self.graph.get_objects(target_class, nil_chain)
+                obj_list = list(obj_iterator)
+                nil_list = list(nil_iterator)
+
+                if len(obj_list) == 0 and len(nil_list) == 0:
+                    break
+
+                else:
+                    for obj in obj_list:
+                        self.graph.add_triple(restriction, prop, obj)
+
+                    for obj in nil_list:
+                        if obj == Curie('rdf:nil'):
+                            break_while = True
+
+                if break_while:
+                    break
+                iterations += 1

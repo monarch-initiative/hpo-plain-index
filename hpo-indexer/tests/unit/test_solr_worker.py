@@ -30,7 +30,9 @@ class TestSolrWorker():
         curie_util = CurieUtil(curie_map)
         graph = RDFGraph(curie_util)
         graph.parse(hp_ontology, format='ttl')
+
         owl_util = OWLUtil(graph)
+        owl_util.process_some_values_from()
         # See integration  tests for light testing with real solr instance
         solr = 'http://fake-solr.org'
         self.solr_worker = SolrWorker(

@@ -14,4 +14,4 @@ X:arm X:label "arm" .
 X:torso X:label "torso" .
 X:body X:label "body" .
 
-X:finger X:randomRelation X:foot .
+X:hand X:randomRelation X:foot .
