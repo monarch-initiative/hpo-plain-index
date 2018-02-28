@@ -53,8 +53,8 @@ class SolrWorker():
             if terms_processed % SolrWorker.BATCH_SIZE == 0 \
                     and terms_processed != 0:
                 self.insert_into_solr(self.solr, solr_doc_list)
-                logger.info("Inserted {} HPO terms with terms_processed".format(terms_processed))
-                solr_doc_list = 0
+                logger.info("Inserted {} documents into solr".format(terms_processed))
+                solr_doc_list = []
 
             curie_id = term.id
             exact_synonym = None
@@ -89,6 +89,7 @@ class SolrWorker():
             # Get anatomy closure
             anatomy_closure = []
             anatomy_closure_label = []
+
             for anatomy in self.get_anatomy_terms(term):
                 for node in self.graph.get_closure(anatomy,
                                                    SolrWorker.PART_OF,
@@ -173,9 +174,7 @@ class SolrWorker():
                     owl:someValuesFrom [ a owl:Class ;
                         owl:intersectionOf ( ?quality [ a owl:Restriction ;
                             owl:onProperty ?relation ;
-                            owl:someValuesFrom ?anatomy ] [ a owl:Restriction ;
-                            owl:onProperty RO:0002573 ;
-                            owl:someValuesFrom PATO:0000460 ] ) ] ] .
+                            owl:someValuesFrom ?anatomy ] ) ] ] .
             }}
         """.format(phenotype.id)
 

@@ -21,7 +21,7 @@ class RDFGraph(RDFLibGraph, Graph):
                     node: NodeType,
                     edge: Optional[PredicateType]=None,
                     root: Optional[SubjectType]=None,
-                    label_predicate: Optional[str] = 'rdfs:label',
+                    label_predicate: Optional[Curie] = Curie('rdfs:label'),
                     reflexive: Optional[bool] = True) -> List[Node]:
         nodes = []
         root_seen = {}

@@ -6,11 +6,12 @@ from HPOIndexer.model.models import Curie
 from HPOIndexer.SolrWorker import SolrWorker
 
 
-from typing import List, Optional, Dict
+from typing import List, Optional
 import multiprocessing
 from multiprocessing import Lock, Process
 import argparse
 import logging
+import requests
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
@@ -63,20 +64,14 @@ class SolrLoader():
         terms_w_lay_syns = self.get_terms_with_lay_syns()
 
         lock = Lock()
-        solr_worker = SolrWorker(terms_w_lay_syns,
-                                 self.graph,
-                                 self.owl_util,
-                                 curie_util,
-                                 args.solr,
-                                 lock
-                                 )
+        procs = [] # use a pool?
+
         logger.info("Processing terms with lay "
                     "person synoynm(s)".format(len(terms_w_lay_syns)))
 
         # Split into chunks depending on args.processes
         for chunk in [terms_w_lay_syns[i::args.processes]
                       for i in range(args.processes)]:
-            print(len(chunk))
             solr_worker = SolrWorker(chunk,
                                      self.graph,
                                      self.owl_util,
@@ -84,11 +79,19 @@ class SolrLoader():
                                      args.solr,
                                      lock
                                      )
-            Process(target=solr_worker.run).start()
+            proc = Process(target=solr_worker.run)
+            proc.start()
+            procs.append(proc)
 
-        #solr_worker.run()
+        for proc in procs:
+            proc.join()
 
         logger.info("Finished processing terms with lay person synoynm(s)")
+
+        logger.info("Optimizing solr")
+        self._optimize_solr(args.solr)
+        logger.info("Solr optimized")
+
 
     def get_terms_with_lay_syns(
             self,
@@ -116,6 +119,24 @@ class SolrLoader():
                     break
 
         return terms_w_synonym
+
+    def _optimize_solr(self, solr: str) -> None:
+        """
+        optimize solr core
+        """
+        path = solr + 'update'
+        params = {
+            'optimize': 'true',
+            'wt': 'json'
+        }
+
+        solr_req = requests.get(path, params=params)
+        solr_response = solr_req.json()
+
+        if solr_response['responseHeader']['status'] != 0:
+            raise ValueError("Failed to optimize solr core, "
+                             "response: {}".format(solr_response))
+
 
     @staticmethod
     def get_default_curie_map():
