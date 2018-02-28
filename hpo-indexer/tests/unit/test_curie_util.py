@@ -34,3 +34,8 @@ class TestCurieUtil():
         curie = Curie('owl:1234')
         iri = 'http://www.w3.org/2002/07/owl#1234'
         assert self.curie_util.iri_to_curie(iri) == curie
+
+    def test_iri_to_curie_owl_inferred(self):
+        curie = Curie('owl:is_inferred')
+        iri = 'http://www.w3.org/2002/07/owl#is_inferred'
+        assert self.curie_util.iri_to_curie(iri) == curie

@@ -51,7 +51,7 @@ class CurieUtil():
 
             In the meantime, this hack should work for some obo ontologies
             '''
-            parts = re.split(r'_|#', iri)
+            parts = re.split(r'_|#', iri, 1)
             if len(parts) != 2:
                 raise ValueError("Cannot resolve iri to curie: {}".format(iri))
             else:

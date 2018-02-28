@@ -7,7 +7,7 @@ class Graph(metaclass=ABCMeta):
 
     @abstractmethod
     def get_closure(self,
-                    node_id: Any,
+                    node: Any,
                     edge: Optional[Any],
                     root: Optional[Any],
                     label: Optional[Any],
@@ -19,7 +19,7 @@ class Graph(metaclass=ABCMeta):
 
     @abstractmethod
     def get_descendants(self,
-                        node_id: Any,
+                        node: Any,
                         edge: Optional[Any],
                         label: Optional[Any]) -> Sequence[Node]:
         """

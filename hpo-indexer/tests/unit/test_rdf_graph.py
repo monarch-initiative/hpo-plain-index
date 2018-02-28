@@ -8,6 +8,9 @@ synonym_ontology = os.path.join(os.path.dirname(__file__), 'resources/test-ontol
 
 
 class TestRDFGraph():
+    """
+    TO DO tests on BNodes
+    """
 
     def setup(self):
         curie_map = {

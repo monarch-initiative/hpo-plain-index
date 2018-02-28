@@ -1,7 +1,7 @@
 from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.model.models import NodeType, SubjectType, PredicateType, Node, Curie
 from rdflib import Graph as RDFLibGraph
-from rdflib import Namespace, URIRef, Literal
+from rdflib import Namespace, URIRef, Literal, BNode
 from typing import List, Optional, Iterator, Union, Tuple
 
 
@@ -49,10 +49,11 @@ class RDFGraph(RDFLibGraph, Graph):
 
         return nodes
 
-    def get_descendants(self,
-                        node: NodeType,
-                        edge: Optional[PredicateType] = None,
-                        label_predicate: Optional[PredicateType] = 'rdfs:label')\
+    def get_descendants(
+            self,
+            node: NodeType,
+            edge: Optional[PredicateType] = None,
+            label_predicate: Optional[PredicateType] = Curie('rdfs:label')) \
             -> List[Node]:
 
         nodes = []
@@ -120,7 +121,9 @@ class RDFGraph(RDFLibGraph, Graph):
             predicate = URIRef(self.curie_util.curie_to_iri(predicate))
 
         for subject in self.subjects(predicate, obj):
-            yield self.curie_util.iri_to_curie(str(subject))
+            if not isinstance(subject, BNode):
+                subject = self.curie_util.iri_to_curie(str(subject))
+            yield subject
 
     def get_predicate_objects(self,
                               subject: Curie) \
@@ -129,7 +132,7 @@ class RDFGraph(RDFLibGraph, Graph):
         if isinstance(subject, Curie):
             subject = URIRef(self.curie_util.curie_to_iri(subject))
         for predicate, obj in self.predicate_objects(subject):
-            if not isinstance(obj, Literal):
+            if isinstance(obj, URIRef):
                 obj = self.curie_util.iri_to_curie(obj)
             yield self.curie_util.iri_to_curie(str(predicate)), obj
 

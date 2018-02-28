@@ -30,12 +30,17 @@ class TestSolrLoader():
         graph = RDFGraph(curie_util)
         graph.parse(hp_ontology, format='ttl')
         owl_util = OWLUtil(graph)
-        # See integration  tests for light testing with real solr instance
-        solr = 'http://fake-solr.org'
-        self.solr_loader = SolrLoader(graph, owl_util, curie_util, solr)
+        self.solr_loader = SolrLoader(graph, owl_util)
 
     def teardown(self):
         self.solr_loader = None
 
     def test_get_lay_syns(self):
-        assert 1
+        syns = self.solr_loader.get_terms_with_lay_syns()
+        expected = {
+            Curie('HP:1'),
+            Curie('HP:2'),
+            Curie('HP:4'),
+            Curie('HP:5')
+        }
+        assert set(syns) == expected

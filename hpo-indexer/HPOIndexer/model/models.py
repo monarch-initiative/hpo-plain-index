@@ -34,7 +34,7 @@ class Axiom(NamedTuple):
     source: SubjectType
     target: NodeType
     property: PredicateType
-    parts: Optional[Dict[NodeType, List[NodeType]]]
+    parts: Optional[Dict[NodeType, List[NodeType]]] = {}
 
 
 class PLDoc(NamedTuple):

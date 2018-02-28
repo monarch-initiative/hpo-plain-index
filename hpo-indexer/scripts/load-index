@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+    python HPOIndexer/SolrLoader.py --solr "http://solr:8983/solr/hpo-pl/"
+else
+    python HPOIndexer/SolrLoader.py --solr $1
+fi

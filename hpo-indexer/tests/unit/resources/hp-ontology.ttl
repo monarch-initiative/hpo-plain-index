@@ -35,33 +35,33 @@ HP:4 oboInOwl:hasBroadSynonym "HP4" ;
 HP:5 oboInOwl:hasNarrowSynonym "HP5" ;
      rdfs:label "HP:5" .
 
-HP:1_synonym a owl:Axiom ;
+HP:1synonym a owl:Axiom ;
     oboInOwl:hasSynonymType :layperson ;
     owl:annotatedProperty oboInOwl:hasExactSynonym ;
     owl:annotatedSource HP:1 ;
     owl:annotatedTarget "HP1" .
 
-HP:2_synonym a owl:Axiom ;
+HP:2synonym a owl:Axiom ;
     oboInOwl:hasSynonymType :layperson ;
     owl:annotatedProperty oboInOwl:hasRelatedSynonym ;
     owl:annotatedSource HP:2 ;
     owl:annotatedTarget "HP2" .
 
-HP:3_synonym a owl:Axiom ;
+HP:3synonym a owl:Axiom ;
     owl:annotatedProperty oboInOwl:hasBroadSynonym ;
     owl:annotatedSource HP:3 ;
     owl:annotatedTarget "HP3" .
 
-HP:4_synonym a owl:Axiom ;
+HP:4synonym a owl:Axiom ;
     oboInOwl:hasSynonymType :layperson ;
     owl:annotatedProperty oboInOwl:hasBroadSynonym ;
     owl:annotatedSource HP:4 ;
     owl:annotatedTarget "HP4" .
 
-HP:5_synonym a owl:Axiom ;
+HP:5synonym a owl:Axiom ;
     oboInOwl:hasSynonymType :layperson ;
     owl:annotatedProperty oboInOwl:hasNarrowSynonym ;
-    owl:annotatedSource HP:4 ;
+    owl:annotatedSource HP:5 ;
     owl:annotatedTarget "HP5" .
 
 

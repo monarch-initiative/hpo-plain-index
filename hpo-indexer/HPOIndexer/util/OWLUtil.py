@@ -1,6 +1,6 @@
 from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.model.models import Axiom, Curie
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Iterable
 from rdflib.term import Literal
 
 
@@ -109,7 +109,7 @@ class OWLUtil():
 
     def get_synonyms(self,
                      curie: Curie,
-                     synonym_types: List[str]) -> Dict[str, List[str]]:
+                     synonym_types: Iterable[str]) -> Dict[str, List[str]]:
         """
         :param curie: curie formatted id
         :param synonym_types: Optional list of synonym predicates

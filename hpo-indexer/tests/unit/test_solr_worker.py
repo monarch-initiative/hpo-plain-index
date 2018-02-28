@@ -58,3 +58,10 @@ class TestSolrWorker():
         results = self.solr_worker.get_anatomy_terms(phenotype)
         result = list(results)
         assert len(result) == 0
+
+    def test_is_syn_lay(self):
+        term = Curie('HP:1')
+        syn_type = 'oboInOwl:hasExactSynonym'
+        syn = 'HP1'
+        is_lay = self.solr_worker.is_synonym_lay(term, syn_type, syn)
+        assert is_lay == True

@@ -3,24 +3,29 @@ from HPOIndexer.graph.RDFGraph import RDFGraph
 from HPOIndexer.util.OWLUtil import OWLUtil
 from HPOIndexer.util.CurieUtil import CurieUtil
 from HPOIndexer.model.models import Curie
+from HPOIndexer.SolrWorker import SolrWorker
+
 
 from typing import List, Optional, Dict
-from HPOIndexer.SolrWorker import SolrWorker
-from multiprocessing import Lock
+import multiprocessing
+from multiprocessing import Lock, Process
 import argparse
+import logging
+
+logging.basicConfig()
+logging.getLogger().setLevel(logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 
 class SolrLoader():
 
     def __init__(self,
                  graph: Optional[Graph] = None,
-                 owl_util: Optional[OWLUtil] = None,
-                 curie_util: Optional[CurieUtil] = None,
-                 solr: Optional[str] = None):
+                 owl_util: Optional[OWLUtil] = None
+                 ):
         self.graph = graph
         self.owl_util = owl_util
-        self.curie_util = curie_util
-        self.solr = solr
 
     def main(self):
         parser = argparse.ArgumentParser(
@@ -33,29 +38,84 @@ class SolrLoader():
             default="http://solr:8983/solr/hpo-pl/",
             help='Path to solr client')
 
+        parser.add_argument(
+            '--processes', '-p', type=str, required=False,
+            default=multiprocessing.cpu_count(),
+            help='Number of processes to spawn')
+
         args = parser.parse_args()
 
-        self.solr = args.solr
         # hardcoded curie map
         curie_map = SolrLoader.get_default_curie_map()
         curie_util = CurieUtil(curie_map)
         self.graph = RDFGraph(curie_util)
-        owl_util = OWLUtil(self.graph)
+        self.owl_util = OWLUtil(self.graph)
 
+        # Hardcode get HPO owl file and upheno uberon import
+        logger.info("Loading HPO and uberon_import.owl")
+        self.graph.parse('http://purl.obolibrary.org/obo/hp.owl',
+                         format='xml')
+        self.graph.parse('http://purl.obolibrary.org/obo/upheno/imports/uberon_import.owl',
+                         format='xml')
+        logger.info("Finished loading ontologies")
+
+        logger.info("Getting phenotypes with lay person synonyms")
+        terms_w_lay_syns = self.get_terms_with_lay_syns()
+
+        lock = Lock()
+        solr_worker = SolrWorker(terms_w_lay_syns,
+                                 self.graph,
+                                 self.owl_util,
+                                 curie_util,
+                                 args.solr,
+                                 lock
+                                 )
+        logger.info("Processing terms with lay "
+                    "person synoynm(s)".format(len(terms_w_lay_syns)))
+
+        # Split into chunks depending on args.processes
+        for chunk in [terms_w_lay_syns[i::args.processes]
+                      for i in range(args.processes)]:
+            print(len(chunk))
+            solr_worker = SolrWorker(chunk,
+                                     self.graph,
+                                     self.owl_util,
+                                     curie_util,
+                                     args.solr,
+                                     lock
+                                     )
+            Process(target=solr_worker.run).start()
+
+        #solr_worker.run()
+
+        logger.info("Finished processing terms with lay person synoynm(s)")
 
     def get_terms_with_lay_syns(
             self,
             root: Curie = Curie('HP:0000118'),
             lay_annotation: Curie = Curie(':layperson')) -> List[Curie]:
-        synonyms = [] # list of dicts from
+
+        terms_w_synonym = []
+        subclass_of = Curie('rdfs:subClassOf')
+
         # Get descendant graph from root SolrWorker.get_synonyms
-        all_phenotypes = self.graph.get_descendants(root)
-        # Get synonyms for each term
+        all_phenotypes = self.graph.get_descendants(root, subclass_of)
+
+        # Get axioms for phenotype and check for lay person annotation
         for term in all_phenotypes:
-            pass
-        # Filter those with annotation (lay person)
+            axioms = self.owl_util.get_axioms(term.id)
+            for axiom in axioms:
+                has_lay = False
+                for k,v in axiom.parts.items():
+                    if k == Curie('oboInOwl:hasSynonymType') \
+                            and lay_annotation in v:
+                        terms_w_synonym.append(term.id)
+                        has_lay = True
+                        break
+                if has_lay is True:
+                    break
 
-
+        return terms_w_synonym
 
     @staticmethod
     def get_default_curie_map():
@@ -71,7 +131,8 @@ class SolrLoader():
             'RO': 'http://purl.obolibrary.org/obo/RO_',
             'PATO': 'http://purl.obolibrary.org/obo/PATO_',
             'UBERON': 'http://purl.obolibrary.org/obo/UBERON_',
-            'BFO': 'http://purl.obolibrary.org/obo/BFO_'
+            'BFO': 'http://purl.obolibrary.org/obo/BFO_',
+            'IAO': 'http://purl.obolibrary.org/obo/IAO_'
         }
 
 if __name__ == "__main__":
