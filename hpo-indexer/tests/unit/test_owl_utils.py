@@ -55,8 +55,8 @@ class TestOWLUtils():
             'X:hasNarrowSynonym'
         ]
         expected = {
-            'X:hasExactSynonym': {'bar', 'baz'},
-            'X:hasNarrowSynonym': ['qux']
+            'X:hasExactSynonym': {Literal('bar'), Literal('baz')},
+            'X:hasNarrowSynonym': [Literal('qux')]
         }
         results = self.owl_util.get_synonyms(curie, synonym_types)
         # Convert list to set since order is not guaranteed

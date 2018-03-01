@@ -18,7 +18,7 @@ Run the unit tests:
 
     python -m pytest tests/unit/
 
-Run the loader:
+Run the loader (takes ~10 minutes):
 
     export PYTHONPATH=.:$PYTHONPATH
     python HPOIndexer/SolrLoader.py --solr "http://localhost:8983/solr/hpo-pl/"

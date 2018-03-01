@@ -48,7 +48,7 @@ Run the unit tests:
 
     docker-compose run loader test
 
-Load the data:
+Load the data (takes ~10 minutes):
 
     docker-compose run loader load-index
 

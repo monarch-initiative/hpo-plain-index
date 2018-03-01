@@ -2,7 +2,6 @@ from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.model.models import Axiom, Curie
 from typing import List, Union, Dict, Iterable
 from rdflib.term import Literal
-import copy
 
 
 class OWLUtil():
@@ -124,7 +123,7 @@ class OWLUtil():
 
         for synonym_type in synonym_types:
             synonym_object[synonym_type] = \
-                [str(synonym)
+                [synonym
                  for synonym in self.graph.get_objects(curie, Curie(synonym_type))]
 
         return synonym_object

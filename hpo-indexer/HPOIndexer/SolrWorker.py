@@ -66,7 +66,7 @@ class SolrWorker():
             syn_dict = self.owl_util.get_synonyms(term, SolrWorker.SYNONYMS)
 
             for typ, syn_list in syn_dict.items():
-                lay_synonyms = [syn for syn in syn_list
+                lay_synonyms = [str(syn) for syn in syn_list
                                 if self.is_synonym_lay(term, typ, syn)]
                 if typ == 'oboInOwl:hasExactSynonym':
                     exact_synonym = lay_synonyms
@@ -75,7 +75,7 @@ class SolrWorker():
                 elif typ == 'oboInOwl:hasNarrowSynonym':
                     narrow_synonym = lay_synonyms
                 elif typ == 'oboInOwl:hasBroadSynonym':
-                    related_synonym = lay_synonyms
+                    broad_synonym = lay_synonyms
 
             # Get phenotype closure
             phenotype_closure = []
