@@ -1,4 +1,4 @@
-from typing import List, NamedTuple, Optional, Any, Dict, Union, TypeVar
+from typing import List, NamedTuple, Optional, Dict, TypeVar
 from rdflib import Literal, BNode, URIRef
 import json
 

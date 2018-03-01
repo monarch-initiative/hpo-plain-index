@@ -87,14 +87,22 @@ class SolrWorker():
                 phenotype_closure_label.append(node.label)
 
             # Get anatomy closure
-            anatomy_closure = []
-            anatomy_closure_label = []
+            anatomy_closure = set()
+            anatomy_closure_label = set()
+            # Get part of closer
             for anatomy in self.get_anatomy_terms(term):
                 for node in self.graph.get_closure(anatomy,
                                                    SolrWorker.PART_OF,
                                                    SolrWorker.UBER_ROOT):
-                    anatomy_closure.append(node.id)
-                    anatomy_closure_label.append(node.label)
+                    anatomy_closure.add(node.id)
+                    anatomy_closure_label.add(node.label)
+            # Get subclass closure
+            for anatomy in self.get_anatomy_terms(term):
+                for node in self.graph.get_closure(anatomy,
+                                                   SolrWorker.SUBCLASS_OF,
+                                                   SolrWorker.UBER_ROOT):
+                    anatomy_closure.add(node.id)
+                    anatomy_closure_label.add(node.label)
 
             doc = PLDoc(
                 id=curie_id,
@@ -104,8 +112,8 @@ class SolrWorker():
                 broad_synonym=broad_synonym,
                 phenotype_closure=phenotype_closure,
                 phenotype_closure_label=phenotype_closure_label,
-                anatomy_closure=anatomy_closure,
-                anatomy_closure_label=anatomy_closure_label
+                anatomy_closure=list(anatomy_closure),
+                anatomy_closure_label=list(anatomy_closure_label)
             )
             solr_doc_list.append(json.loads(doc._asjson()))
             terms_processed += 1

@@ -38,9 +38,9 @@ and anatomy groupings to enable faceting.  For example:
 
 Build and initialize:
 
-    docker-compose up
+    docker-compose up -d
 
-Run the integration tests:
+(Wait 30 seconds) Run the integration tests:
 
     docker-compose run loader integration-tests
 
@@ -52,9 +52,9 @@ Load the data (takes ~10 minutes):
 
     docker-compose run loader load-index
 
-Copy index to local filesystem
+Archive and copy index to local filesystem
 
-    something
-
+    docker-compose exec solr bash -c 'cd /opt/solr/server/solr && tar cfv hpo-pl.tar hpo-pl/'
+    docker cp solr-hpo:/opt/solr/server/solr/hpo-pl.tar ./
 
 
