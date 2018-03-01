@@ -1,0 +1,21 @@
+{
+   "id":"HP:0000464",
+   "exact_synonym":[
+      "Abnormality of the neck"
+   ],
+   "narrow_synonym":null,
+   "broad_synonym":null,
+   "related_synonym":null,
+   "phenotype_closure":[
+      "HP:0000464",
+      "HP:0000152",
+      "HP:0000118"
+   ],
+   "phenotype_closure_label":[
+      "Abnormality of the neck",
+      "Abnormality of head or neck",
+      "Phenotypic abnormality"
+   ],
+   "anatomy_closure":null,
+   "anatomy_closure_label":null
+}

@@ -1,0 +1,17 @@
+@prefix X: <http://x.org/X_> .
+
+X:foo X:hasExactSynonym "bar" .
+X:foo X:hasExactSynonym "baz" .
+
+X:finger X:partOf X:hand .
+X:hand X:partOf X:arm .
+X:arm X:partOf X:torso .
+X:torso X:partOf X:body .
+
+X:finger X:label "finger" .
+X:hand X:label "hand" .
+X:arm X:label "arm" .
+X:torso X:label "torso" .
+X:body X:label "body" .
+
+X:hand X:randomRelation X:foot .

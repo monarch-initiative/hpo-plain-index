@@ -1,0 +1,16 @@
+version: '3'
+services:
+  solr:
+    image: solr:6.2
+    command: ["bash", "/scripts/create-core.sh"]
+    ports:
+     - "8983:8983"
+    volumes:
+      - "./resources:/scripts"
+    container_name: solr-hpo
+
+  loader:
+    build: ./hpo-indexer
+    container_name: hpo-loader
+    depends_on:
+      - "solr"

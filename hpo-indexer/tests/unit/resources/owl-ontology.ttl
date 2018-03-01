@@ -1,0 +1,57 @@
+@prefix X: <http://x.org/X_> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix RO: <http://purl.obolibrary.org/obo/RO_> .
+@prefix PATO: <http://purl.obolibrary.org/obo/PATO_> .
+@prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_> .
+@prefix BFO: <http://purl.obolibrary.org/obo/BFO_> .
+
+
+X:foo X:hasExactSynonym "bar" .
+X:bnode1 X:annotatedSource X:foo .
+X:bnode1 X:hasSynonymType <http://purl.obolibrary.org/obo/hp.owl#layperson> .
+X:bnode1 X:annotatedTarget "bar" .
+
+X:foo X:hasExactSynonym "baz" .
+
+X:foo X:hasNarrowSynonym "qux" .
+X:bnode1 X:annotatedSource X:foo .
+X:bnode1 X:hasSynonymType <http://purl.obolibrary.org/obo/hp.owl#layperson> .
+X:bnode1 X:annotatedTarget "qux" .
+
+X:finger X:partOf X:hand .
+X:hand X:partOf X:arm .
+X:arm X:partOf X:torso .
+X:torso X:partOf X:body .
+
+X:finger X:label "finger" .
+X:hand X:label "hand" .
+X:arm X:label "arm" .
+X:torso X:label "torso" .
+X:body X:label "body" .
+
+X:finger X:randomRelation X:foot .
+
+X:synonymAxiom a owl:Axiom ;
+    oboInOwl:hasSynonymType X:layperson ;
+    owl:annotatedProperty X:hasExactSynonym ;
+    owl:annotatedSource X:foo ;
+    owl:annotatedTarget "bar" .
+
+
+X:foo a owl:Class ;
+    oboInOwl:hasExactSynonym "some synonym" ;
+    rdfs:subClassOf X:0000045,
+        X:0000050 ;
+    owl:equivalentClass [ a owl:Restriction ;
+            owl:onProperty BFO:0000051 ;
+            owl:someValuesFrom [ a owl:Class ;
+                    owl:intersectionOf ( PATO:0000645 [ a owl:Restriction ;
+                                owl:onProperty RO:0000052 ;
+                                owl:someValuesFrom UBERON:0001300 ] [ a owl:Restriction ;
+                                owl:onProperty RO:0002573 ;
+                                owl:someValuesFrom PATO:0000460 ] ) ] ] .

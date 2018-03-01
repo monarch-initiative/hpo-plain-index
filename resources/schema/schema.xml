@@ -1,0 +1,125 @@
+<?xml version="1.0" ?>
+<schema name="hpo-pl" version="6.2">
+  <types>
+    <!--Unsplit string for when text needs to be dealt with atomically.-->
+    <!--For example, faceted querying.-->
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true"></fieldType>
+
+    <!--Any string with spaces that needs to be treated for searching purposes.-->
+    <fieldType name="text_eng" class="solr.TextField" positionIncrementGap="100" sortMissingLast="true">
+      <analyzer type="index">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="_" replacement=" "></charFilter>
+        <tokenizer class="solr.StandardTokenizerFactory"></tokenizer>
+        <filter class="solr.LowerCaseFilterFactory"></filter>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15"></filter>
+      </analyzer>
+      <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="_" replacement=" "></charFilter>
+        <tokenizer class="solr.StandardTokenizerFactory"></tokenizer>
+        <filter class="solr.LowerCaseFilterFactory"></filter>
+      </analyzer>
+    </fieldType>
+    <fieldType name="text_std" class="solr.TextField" positionIncrementGap="100" sortMissingLast="true">
+      <analyzer type="index">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="_" replacement=" "></charFilter>
+        <tokenizer class="solr.StandardTokenizerFactory"></tokenizer>
+        <filter class="solr.LowerCaseFilterFactory"></filter>
+      </analyzer>
+      <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="_" replacement=" "></charFilter>
+        <tokenizer class="solr.StandardTokenizerFactory"></tokenizer>
+        <filter class="solr.LowerCaseFilterFactory"></filter>
+      </analyzer>
+    </fieldType>
+    <fieldType name="text_kw" class="solr.TextField" positionIncrementGap="100" sortMissingLast="true">
+      <analyzer type="index">
+        <tokenizer class="solr.KeywordTokenizerFactory"></tokenizer>
+        <filter class="solr.LowerCaseFilterFactory"></filter>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.KeywordTokenizerFactory"></tokenizer>
+        <filter class="solr.LowerCaseFilterFactory"></filter>
+      </analyzer>
+    </fieldType>
+    <fieldType name="integer" class="solr.TrieIntField" precisionStep="0" positionIncrementGap="0" sortMissingLast="true"></fieldType>
+    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"></fieldType>
+    <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"></fieldType>
+    <fieldType name="long" class="solr.TrieLongField"></fieldType>
+    <fieldType name="tdates" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="6"></fieldType>
+    <fieldType name="tlongs" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"></fieldType>
+    <fieldType name="tdoubles" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"></fieldType>
+  </types>
+  <fields>
+    <!-- A special static/fixed (by YAML conf file) field all documents have. -->
+    <field name="document_category" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+    <!-- Required by Solr. -->
+    <field name="_version_" type="long" multiValued="false" indexed="true" stored="true"></field>
+
+    <!-- hpo plain language: HPO CURIE -->
+    <field name="id" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
+
+    <!-- Exact synonyms. -->
+    <field name="exact_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="exact_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="exact_synonym_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="exact_synonym_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="exact_synonym" dest="exact_synonym_std"></copyField>
+    <copyField source="exact_synonym" dest="exact_synonym_eng"></copyField>
+    <copyField source="exact_synonym" dest="exact_synonym_kw"></copyField>
+
+    <!-- Narrow synonyms. -->
+    <field name="narrow_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="narrow_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="narrow_synonym_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="narrow_synonym_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="narrow_synonym" dest="narrow_synonym_std"></copyField>
+    <copyField source="narrow_synonym" dest="narrow_synonym_eng"></copyField>
+    <copyField source="narrow_synonym" dest="narrow_synonym_kw"></copyField>
+
+    <!-- Broad synonyms. -->
+    <field name="broad_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="broad_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="broad_synonym_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="broad_synonym_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="broad_synonym" dest="broad_synonym_std"></copyField>
+    <copyField source="broad_synonym" dest="broad_synonym_eng"></copyField>
+    <copyField source="broad_synonym" dest="broad_synonym_kw"></copyField>
+
+    <!-- Related synonyms. -->
+    <field name="related_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="related_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="related_synonym_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="related_synonym_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="related_synonym" dest="related_synonym_std"></copyField>
+    <copyField source="related_synonym" dest="related_synonym_eng"></copyField>
+    <copyField source="related_synonym" dest="related_synonym_kw"></copyField>
+
+    <!-- Closure fields -->
+    
+    <!-- HPO class subclassOf closure -->
+    <field name="phenotype_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+
+    <!-- HPO class closure labels -->
+    <field name="phenotype_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+
+    <!-- Anatomy (UBERON) part of class closure -->
+    <field name="anatomy_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+
+    <!-- Anatomy class closure labels -->
+    <field name="anatomy_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    
+  </fields>
+  <uniqueKey>id</uniqueKey>
+</schema>

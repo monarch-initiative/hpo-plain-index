@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+    python -m pytest tests/integration/ --solr "http://solr:8983/solr/test-core/"
+else
+    python -m pytest tests/integration/ --solr $1
+fi
