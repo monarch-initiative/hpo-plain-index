@@ -56,5 +56,7 @@ Archive and copy index to local filesystem
 
     docker-compose exec solr bash -c 'cd /opt/solr/server/solr && tar cfv hpo-pl.tar hpo-pl/'
     docker cp solr-hpo:/opt/solr/server/solr/hpo-pl.tar ./
-
-
+    
+Stop and remove containers, networks, volumes, and images
+    
+    docker-compose down
