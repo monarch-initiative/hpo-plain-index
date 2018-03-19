@@ -57,6 +57,7 @@ class SolrWorker():
                 solr_doc_list = []
 
             curie_id = term.id
+            label = self.graph.get_label(term)
             exact_synonym = None
             narrow_synonym = None
             broad_synonym = None
@@ -106,6 +107,7 @@ class SolrWorker():
 
             doc = PLDoc(
                 id=curie_id,
+                label=label,
                 exact_synonym=exact_synonym,
                 related_synonym=related_synonym,
                 narrow_synonym=narrow_synonym,

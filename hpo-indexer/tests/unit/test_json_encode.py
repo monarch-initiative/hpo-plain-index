@@ -15,6 +15,7 @@ def test_json_encode():
     test_doc = PLDoc(
         id='HP:0000464',
         exact_synonym=['Abnormality of the neck'],
+        label='Abnormality of the neck',
         phenotype_closure=[
             'HP:0000464',
             'HP:0000152',

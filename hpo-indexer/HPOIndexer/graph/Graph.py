@@ -54,6 +54,10 @@ class Graph(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_label(self, subject: SubjectType):
+        pass
+
+    @abstractmethod
     def parse(self, source, format):
         pass
 

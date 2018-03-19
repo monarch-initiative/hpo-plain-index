@@ -191,6 +191,12 @@ class RDFGraph(RDFLibGraph, Graph):
             obj = URIRef(self.curie_util.curie_to_iri(obj))
         self.add((subject, predicate, obj))
 
+    def get_label(self, subject: NodeType) -> None:
+
+        if isinstance(subject, Curie):
+            subject = URIRef(self.curie_util.curie_to_iri(subject))
+        return self.label(subject)
+
     def _make_node(self,
                    iri: URIRef,
                    label_predicate: URIRef) -> Node:
