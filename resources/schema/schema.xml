@@ -58,6 +58,9 @@
     <!-- hpo plain language: HPO CURIE -->
     <field name="id" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
 
+    <!-- hpo plain language: HPO primary label -->
+    <field name="label" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
+
     <!-- Exact synonyms. -->
     <field name="exact_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--A StandardTokenized version of synonym.-->

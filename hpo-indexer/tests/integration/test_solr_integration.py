@@ -88,6 +88,7 @@ def test_insert_using_api(solr_core):
 
     test_doc = PLDoc(
         id='HP:1234',
+        label='Abnormality of the neck',
         exact_synonym=['Abnormality of the neck'],
         phenotype_closure=[
             'HP:0000464',

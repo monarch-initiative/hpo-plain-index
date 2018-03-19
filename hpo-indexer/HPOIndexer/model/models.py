@@ -43,6 +43,7 @@ class PLDoc(NamedTuple):
     terms with plain language synonyms
     """
     id: str # curie formatted identifer
+    label: str #primary label
     exact_synonym: Optional[List[str]] = None
     narrow_synonym: Optional[List[str]] = None
     broad_synonym: Optional[List[str]] = None
