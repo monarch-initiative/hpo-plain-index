@@ -7,6 +7,7 @@ and anatomy groupings to enable faceting.  For example:
 [
   {
     "id": "HP:0000464",
+    "label": "Abnormality of the neck",
     "exact_synonym": [
       "Abnormality of the neck"
     ],
