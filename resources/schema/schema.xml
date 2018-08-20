@@ -60,6 +60,15 @@
 
     <!-- hpo plain language: HPO primary label -->
     <field name="label" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of label.-->
+    <field name="label_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of label.-->
+    <field name="label_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of label.-->
+    <field name="label_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="label" dest="label_std"></copyField>
+    <copyField source="label" dest="label_eng"></copyField>
+    <copyField source="label" dest="label_kw"></copyField>
 
     <!-- Exact synonyms. -->
     <field name="exact_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
