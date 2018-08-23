@@ -52,6 +52,10 @@ Run the unit tests:
 Load the data (takes ~10 minutes):
 
     docker-compose run loader load-index
+    
+View the index:
+
+    http://localhost:8983/solr/hpo-pl/select?q=*:*&wt=json
 
 Archive and copy index to local filesystem
 
