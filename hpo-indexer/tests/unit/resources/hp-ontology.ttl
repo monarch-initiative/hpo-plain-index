@@ -12,6 +12,8 @@
 @prefix PATO: <http://purl.obolibrary.org/obo/PATO_> .
 @prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_> .
 @prefix BFO: <http://purl.obolibrary.org/obo/BFO_> .
+@prefix IAO: <http://purl.obolibrary.org/obo/IAO_> .
+
 
 HP:0000118 rdfs:subClassOf HP:0000001 .
 HP:1 rdfs:subClassOf HP:0000118 .
@@ -21,7 +23,8 @@ HP:4 rdfs:subClassOf HP:2 .
 HP:5 rdfs:subClassOf HP:2 .
 
 HP:1 oboInOwl:hasExactSynonym "HP1" ;
-     rdfs:label "HP:1" .
+     rdfs:label "HP:1" ;
+     IAO:0000115 "Some made up definition of HP:1" .
 
 HP:2 oboInOwl:hasRelatedSynonym "HP2" ;
      rdfs:label "HP:2" .

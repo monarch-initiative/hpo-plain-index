@@ -8,6 +8,7 @@ if ! [ -d "/opt/solr/server/solr/hpo-pl" ]; then
   /opt/solr/bin/solr create -c hpo-pl
   rm /opt/solr/server/solr/hpo-pl/conf/managed-schema
   cp /scripts/schema/schema.xml /opt/solr/server/solr/hpo-pl/conf/
+  cp /scripts/conf/solrconfig.xml /opt/solr/server/solr/hpo-pl/conf/
 
 fi
 
@@ -18,6 +19,7 @@ if ! [ -d "/opt/solr/server/solr/test-core" ]; then
   cp /scripts/schema/schema.xml /opt/solr/server/solr/test-core/conf/
 
 fi
+
 
 /opt/solr/bin/solr stop
 

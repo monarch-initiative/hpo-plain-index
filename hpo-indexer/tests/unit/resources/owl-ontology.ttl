@@ -9,9 +9,11 @@
 @prefix PATO: <http://purl.obolibrary.org/obo/PATO_> .
 @prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_> .
 @prefix BFO: <http://purl.obolibrary.org/obo/BFO_> .
+@prefix IAO: <http://purl.obolibrary.org/obo/IAO_> .
 
 
 X:foo X:hasExactSynonym "bar" .
+X:foo IAO:0000115 "definition for foo" .
 X:bnode1 X:annotatedSource X:foo .
 X:bnode1 X:hasSynonymType <http://purl.obolibrary.org/obo/hp.owl#layperson> .
 X:bnode1 X:annotatedTarget "bar" .

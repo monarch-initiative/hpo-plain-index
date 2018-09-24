@@ -64,17 +64,22 @@ class SolrLoader():
         logger.info("Processing owl restrictions and intersections")
         self.owl_util.process_some_values_from()
 
-        logger.info("Getting phenotypes with lay person synonyms")
-        terms_w_lay_syns = self.get_terms_with_lay_syns()
+        logger.info("Getting all phenotypes")
+        # Get descendant graph from 'abn phenotype' root
+        all_phenotypes = [
+            term.id for term in self.graph.get_descendants(
+                Curie('HP:0000118'),
+                Curie('rdfs:subClassOf')
+            )
+        ]
 
         lock = Lock()
-        procs = [] # use a pool?
+        processes = []
 
-        logger.info("Processing terms with lay "
-                    "person synoynm(s)".format(len(terms_w_lay_syns)))
+        logger.info("Processing phenotype terms".format(len(all_phenotypes)))
 
         # Split into chunks depending on args.processes
-        for chunk in [terms_w_lay_syns[i::args.processes]
+        for chunk in [all_phenotypes[i::args.processes]
                       for i in range(args.processes)]:
             solr_worker = SolrWorker(chunk,
                                      self.graph,
@@ -83,11 +88,11 @@ class SolrLoader():
                                      args.solr,
                                      lock
                                      )
-            proc = Process(target=solr_worker.run)
-            proc.start()
-            procs.append(proc)
+            process = Process(target=solr_worker.run)
+            process.start()
+            processes.append(process)
 
-        for proc in procs:
+        for proc in processes:
             proc.join()
 
         logger.info("Finished processing terms with lay person synoynm(s)")
@@ -95,7 +100,6 @@ class SolrLoader():
         logger.info("Optimizing solr")
         self._optimize_solr(args.solr)
         logger.info("Solr optimized")
-
 
     def get_terms_with_lay_syns(
             self,

@@ -55,13 +55,25 @@
     <!-- Required by Solr. -->
     <field name="_version_" type="long" multiValued="false" indexed="true" stored="true"></field>
 
+    <!-- definition -->
+    <field name="has_pl_syn" type="boolean" required="true" multiValued="false" indexed="true" stored="true"></field>
+
     <!-- hpo plain language: HPO CURIE -->
     <field name="id" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
 
     <!-- hpo plain language: HPO primary label -->
     <field name="label" type="string" required="true" multiValued="false" indexed="true" stored="true"></field>
+        <!--A StandardTokenized version of label.-->
+    <field name="label_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of label.-->
+    <field name="label_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of label.-->
+    <field name="label_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="label" dest="label_std"></copyField>
+    <copyField source="label" dest="label_eng"></copyField>
+    <copyField source="label" dest="label_kw"></copyField>
 
-    <!-- Exact synonyms. -->
+    <!-- plain language exact synonyms. -->
     <field name="exact_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--A StandardTokenized version of synonym.-->
     <field name="exact_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -73,7 +85,23 @@
     <copyField source="exact_synonym" dest="exact_synonym_eng"></copyField>
     <copyField source="exact_synonym" dest="exact_synonym_kw"></copyField>
 
-    <!-- Narrow synonyms. -->
+    <!-- definition -->
+    <field name="definition" type="string" required="false" multiValued="false" indexed="true" stored="true"></field>
+
+    <!-- clinical exact synonyms. -->
+    <field name="exact_syn_clin" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="exact_syn_clin_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="exact_syn_clin_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="exact_syn_clin_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="exact_syn_clin" dest="exact_syn_clin_std"></copyField>
+    <copyField source="exact_syn_clin" dest="exact_syn_clin_eng"></copyField>
+    <copyField source="exact_syn_clin" dest="exact_syn_clin_kw"></copyField>
+
+
+    <!-- plain language narrow synonyms. -->
     <field name="narrow_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--A StandardTokenized version of synonym.-->
     <field name="narrow_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -85,7 +113,19 @@
     <copyField source="narrow_synonym" dest="narrow_synonym_eng"></copyField>
     <copyField source="narrow_synonym" dest="narrow_synonym_kw"></copyField>
 
-    <!-- Broad synonyms. -->
+    <!-- clinical narrow synonyms. -->
+    <field name="narrow_syn_clin" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="narrow_syn_clin_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="narrow_syn_clin_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="narrow_syn_clin_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="narrow_syn_clin" dest="narrow_syn_clin_std"></copyField>
+    <copyField source="narrow_syn_clin" dest="narrow_syn_clin_eng"></copyField>
+    <copyField source="narrow_syn_clin" dest="narrow_syn_clin_kw"></copyField>
+
+    <!-- plain language broad synonyms. -->
     <field name="broad_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--A StandardTokenized version of synonym.-->
     <field name="broad_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -97,7 +137,19 @@
     <copyField source="broad_synonym" dest="broad_synonym_eng"></copyField>
     <copyField source="broad_synonym" dest="broad_synonym_kw"></copyField>
 
-    <!-- Related synonyms. -->
+    <!-- clinical broad synonyms. -->
+    <field name="broad_syn_clin" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="broad_syn_clin_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="broad_syn_clin_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="broad_syn_clin_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="broad_syn_clin" dest="broad_syn_clin_std"></copyField>
+    <copyField source="broad_syn_clin" dest="broad_syn_clin_eng"></copyField>
+    <copyField source="broad_syn_clin" dest="broad_syn_clin_kw"></copyField>
+
+    <!-- plain language related synonyms. -->
     <field name="related_synonym" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
     <!--A StandardTokenized version of synonym.-->
     <field name="related_synonym_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
@@ -109,8 +161,21 @@
     <copyField source="related_synonym" dest="related_synonym_eng"></copyField>
     <copyField source="related_synonym" dest="related_synonym_kw"></copyField>
 
+    <!-- clinical related synonyms. -->
+    <field name="related_syn_clin" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A StandardTokenized version of synonym.-->
+    <field name="related_syn_clin_std" type="text_std" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A EdgeNGram version of synonym.-->
+    <field name="related_syn_clin_eng" type="text_eng" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <!--A Keyword version of synonym.-->
+    <field name="related_syn_clin_kw" type="text_kw" required="false" multiValued="true" indexed="true" stored="true"></field>
+    <copyField source="related_syn_clin" dest="related_syn_clin_std"></copyField>
+    <copyField source="related_syn_clin" dest="related_syn_clin_eng"></copyField>
+    <copyField source="related_syn_clin" dest="related_syn_clin_kw"></copyField>
+
+
     <!-- Closure fields -->
-    
+
     <!-- HPO class subclassOf closure -->
     <field name="phenotype_closure" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
 
@@ -122,7 +187,7 @@
 
     <!-- Anatomy class closure labels -->
     <field name="anatomy_closure_label" type="string" required="false" multiValued="true" indexed="true" stored="true"></field>
-    
+
   </fields>
   <uniqueKey>id</uniqueKey>
 </schema>

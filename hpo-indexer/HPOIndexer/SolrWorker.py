@@ -20,6 +20,7 @@ class SolrWorker():
     SUBCLASS_OF = Curie('rdfs:subClassOf')
     PHENO_ROOT = Curie('HP:0000118')
     UBER_ROOT = Curie('UBERON:0001062')
+    DEFINITION = Curie('obo:IAO_0000115')
 
     SYNONYMS = [
         'oboInOwl:hasExactSynonym',
@@ -58,10 +59,16 @@ class SolrWorker():
 
             curie_id = term.id
             label = self.graph.get_label(term)
+            definition = self.owl_util.get_definition(term)
+            has_pl_syn = False
             exact_synonym = None
             narrow_synonym = None
             broad_synonym = None
             related_synonym = None
+            exact_syn_clin = None
+            narrow_syn_clin = None
+            broad_syn_clin = None
+            related_syn_clin = None
 
             # Get plain language/lay person synonyms
             syn_dict = self.owl_util.get_synonyms(term, SolrWorker.SYNONYMS)
@@ -69,6 +76,8 @@ class SolrWorker():
             for typ, syn_list in syn_dict.items():
                 lay_synonyms = [str(syn) for syn in syn_list
                                 if self.is_synonym_lay(term, typ, syn)]
+                if len(lay_synonyms) > 0:
+                    has_pl_syn = True
                 if typ == 'oboInOwl:hasExactSynonym':
                     exact_synonym = lay_synonyms
                 elif typ == 'oboInOwl:hasRelatedSynonym':
@@ -77,6 +86,19 @@ class SolrWorker():
                     narrow_synonym = lay_synonyms
                 elif typ == 'oboInOwl:hasBroadSynonym':
                     broad_synonym = lay_synonyms
+
+            # Get clinical synonyms
+            for typ, syn_list in syn_dict.items():
+                clin_synonyms = [str(syn) for syn in syn_list
+                                if not self.is_synonym_lay(term, typ, syn)]
+                if typ == 'oboInOwl:hasExactSynonym':
+                    exact_syn_clin = clin_synonyms
+                elif typ == 'oboInOwl:hasRelatedSynonym':
+                    related_syn_clin = clin_synonyms
+                elif typ == 'oboInOwl:hasNarrowSynonym':
+                    narrow_syn_clin = clin_synonyms
+                elif typ == 'oboInOwl:hasBroadSynonym':
+                    broad_syn_clin = clin_synonyms
 
             # Get phenotype closure
             phenotype_closure = []
@@ -108,10 +130,16 @@ class SolrWorker():
             doc = PLDoc(
                 id=curie_id,
                 label=label,
+                definition=definition,
+                has_pl_syn=has_pl_syn,
                 exact_synonym=exact_synonym,
                 related_synonym=related_synonym,
                 narrow_synonym=narrow_synonym,
                 broad_synonym=broad_synonym,
+                exact_syn_clin=exact_syn_clin,
+                related_syn_clin=related_syn_clin,
+                narrow_syn_clin=narrow_syn_clin,
+                broad_syn_clin=broad_syn_clin,
                 phenotype_closure=phenotype_closure,
                 phenotype_closure_label=phenotype_closure_label,
                 anatomy_closure=list(anatomy_closure),

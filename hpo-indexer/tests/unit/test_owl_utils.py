@@ -19,7 +19,8 @@ class TestOWLUtils():
             'BFO': 'http://purl.obolibrary.org/obo/BFO_',
             'RO': 'http://purl.obolibrary.org/obo/RO_',
             'PATO': 'http://purl.obolibrary.org/obo/PATO_',
-            'UBERON': 'http://purl.obolibrary.org/obo/UBERON_'
+            'UBERON': 'http://purl.obolibrary.org/obo/UBERON_',
+            'IAO': 'http://purl.obolibrary.org/obo/IAO_'
         }
         curie_util = CurieUtil(curie_map)
         graph = RDFGraph(curie_util)
@@ -62,6 +63,13 @@ class TestOWLUtils():
         # Convert list to set since order is not guaranteed
         results['X:hasExactSynonym'] = set(results['X:hasExactSynonym'])
         assert results == expected
+
+    def test_get_definition(self):
+        curie = Curie('X:foo')
+        expected = "definition for foo"
+        results = self.owl_util.get_definition(curie)
+        assert results == expected
+
 
     def test_process_some_values_from(self):
         self.owl_util.process_some_values_from()
