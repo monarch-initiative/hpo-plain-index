@@ -1,7 +1,10 @@
 from HPOIndexer.graph.Graph import Graph
 from HPOIndexer.model.models import Axiom, Curie
-from typing import List, Union, Dict, Iterable
+from typing import List, Union, Dict, Iterable, Optional
 from rdflib.term import Literal
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class OWLUtil():
@@ -11,6 +14,7 @@ class OWLUtil():
     ANNOTATED_SOURCE = 'owl:annotatedSource'
     ANNOTATED_PROPERTY = 'owl:annotatedProperty'
     ANNOTATED_TARGET = 'owl:annotatedTarget'
+    DEFINITION = Curie('IAO:0000115')
 
     def __init__(self, graph: Graph):
         self.graph = graph
@@ -127,6 +131,19 @@ class OWLUtil():
                  for synonym in self.graph.get_objects(curie, Curie(synonym_type))]
 
         return synonym_object
+
+    def get_definition(self, curie: Curie) -> Optional[str]:
+        """
+        :param curie: curie formatted id
+        :return: definition, returns first if multiple
+        """
+        def_list = [definition
+                    for definition in self.graph.get_objects(curie, OWLUtil.DEFINITION)]
+
+        if len(def_list) > 1:
+            logger.warning("More than one definition for {}, using first".format(curie))
+
+        return def_list[0].value if len(def_list) > 0 else None
 
     def process_some_values_from(self) -> None:
         """

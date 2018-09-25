@@ -1,5 +1,5 @@
 from HPOIndexer.graph.Graph import Graph
-from HPOIndexer.model.models import NodeType, SubjectType, PredicateType, Node, Curie
+from HPOIndexer.model.models import IdType, SubjectType, PredicateType, Node, Curie
 from rdflib import Graph as RDFLibGraph
 from rdflib import Namespace, URIRef, Literal, BNode
 from typing import List, Optional, Iterator, Union, Tuple, Any
@@ -20,7 +20,7 @@ class RDFGraph(RDFLibGraph, Graph):
             self.bind(prefix, Namespace(reference))
 
     def get_closure(self,
-                    node: NodeType,
+                    node: IdType,
                     edge: Optional[PredicateType]=None,
                     root: Optional[SubjectType]=None,
                     label_predicate: Optional[Curie] = Curie('rdfs:label'),
@@ -53,7 +53,7 @@ class RDFGraph(RDFLibGraph, Graph):
 
     def get_descendants(
             self,
-            node: NodeType,
+            node: IdType,
             edge: Optional[PredicateType] = None,
             label_predicate: Optional[PredicateType] = Curie('rdfs:label')) \
             -> List[Node]:
@@ -79,8 +79,7 @@ class RDFGraph(RDFLibGraph, Graph):
     def _get_objects_from_prop_chain(
             self,
             subject: Optional[SubjectType],
-            predicates: List[Any]) \
-        -> Iterator[Union[Literal, Curie]]:
+            predicates: List[Any]) -> Iterator[Union[Literal, Curie]]:
         """
         Traverses a property chain and returns an iterator
         of objects at the end of that chain
@@ -109,8 +108,8 @@ class RDFGraph(RDFLibGraph, Graph):
             predicate_list = RDFGraph._convert_curie_list(predicate)
             for pred in predicate_list:
                 for obj in self.get_objects(subject, pred):
-                    for obj in self._get_objects_from_prop_chain(obj, predicate_copy):
-                        yield obj
+                    for obj_prop in self._get_objects_from_prop_chain(obj, predicate_copy):
+                        yield obj_prop
 
     def _make_node(self, iri: URIRef, label_predicate: URIRef) -> Node:
         curie = self.curie_util.iri_to_curie(str(iri))
@@ -121,12 +120,12 @@ class RDFGraph(RDFLibGraph, Graph):
             count += 1
             if count > 1:
                 raise ValueError("More than one label for {}".format(curie))
-            label = str(lab)
+            label = lab.value
         return Node(curie, label)
 
     def get_objects(self,
                     subject:   Optional[SubjectType] = None,
-                    predicate: Union[None, List, PredicateType] = None ) \
+                    predicate: Union[None, List, PredicateType] = None) \
             -> Iterator[Union[Literal, Curie]]:
         """
         Wrapper for rdflib.Graph.objects
@@ -149,7 +148,7 @@ class RDFGraph(RDFLibGraph, Graph):
                 yield obj
 
     def get_subjects(self,
-                     obj:       Optional[NodeType],
+                     obj:       Optional[IdType],
                      predicate: Optional[PredicateType]) -> Iterator[Curie]:
         """
         Wrapper for rdflib.Graph.subjects
@@ -179,9 +178,9 @@ class RDFGraph(RDFLibGraph, Graph):
             yield self.curie_util.iri_to_curie(str(predicate)), obj
 
     def add_triple(self,
-                   subject: NodeType,
+                   subject: IdType,
                    predicate: PredicateType,
-                   obj: NodeType) -> None:
+                   obj: IdType) -> None:
 
         if isinstance(subject, Curie):
             subject = URIRef(self.curie_util.curie_to_iri(subject))
@@ -191,25 +190,11 @@ class RDFGraph(RDFLibGraph, Graph):
             obj = URIRef(self.curie_util.curie_to_iri(obj))
         self.add((subject, predicate, obj))
 
-    def get_label(self, subject: NodeType) -> None:
+    def get_label(self, subject: IdType) -> None:
 
         if isinstance(subject, Curie):
             subject = URIRef(self.curie_util.curie_to_iri(subject))
         return self.label(subject)
-
-    def _make_node(self,
-                   iri: URIRef,
-                   label_predicate: URIRef) -> Node:
-        curie = self.curie_util.iri_to_curie(str(iri))
-        label = None
-        labels = self.objects(iri, label_predicate)
-        count = 0
-        for lab in labels:
-            count += 1
-            if count > 1:
-                raise ValueError("More than one label for {}".format(curie))
-            label = str(lab)
-        return Node(curie, label)
 
     @staticmethod
     def _convert_curie_list(curies: str) -> List[Curie]:

@@ -1,16 +1,16 @@
 from abc import ABCMeta, abstractmethod
 from HPOIndexer.model.models import Node
 from typing import Sequence, Iterator, Optional, Any, Tuple, Union, List
-from HPOIndexer.model.models import NodeType, SubjectType, PredicateType
+from HPOIndexer.model.models import IdType, SubjectType, PredicateType
 
 
 class Graph(metaclass=ABCMeta):
 
     @abstractmethod
     def get_closure(self,
-                    node: NodeType,
+                    node: IdType,
                     edge: Optional[PredicateType],
-                    root: Optional[NodeType],
+                    root: Optional[IdType],
                     label_predicate: Optional[PredicateType],
                     reflexive: Optional[bool]) -> Sequence[Node]:
         """
@@ -20,7 +20,7 @@ class Graph(metaclass=ABCMeta):
 
     @abstractmethod
     def get_descendants(self,
-                        node: NodeType,
+                        node: IdType,
                         edge: Optional[PredicateType],
                         label_predicate: Optional[PredicateType]) -> Sequence[Node]:
         """
@@ -31,14 +31,14 @@ class Graph(metaclass=ABCMeta):
     @abstractmethod
     def get_objects(self,
                     subject: SubjectType,
-                    predicate: Union[None, List, PredicateType]) -> Iterator[NodeType]:
+                    predicate: Union[None, List, PredicateType]) -> Iterator[IdType]:
         """
         :return: Returns an iterator of nodes
         """
         pass
 
     @abstractmethod
-    def get_subjects(self, object: NodeType, predicate: PredicateType) -> Iterator[Any]:
+    def get_subjects(self, object: IdType, predicate: PredicateType) -> Iterator[Any]:
         """
         :return: Returns an iterator of nodes
         """
@@ -46,7 +46,7 @@ class Graph(metaclass=ABCMeta):
 
     @abstractmethod
     def get_predicate_objects(
-            self, subject: SubjectType) -> Iterator[Tuple[PredicateType, NodeType]]:
+            self, subject: SubjectType) -> Iterator[Tuple[PredicateType, IdType]]:
         """
         :return: Returns an iterator of 2 item tuples of nodes that
         correspond to predicates and objects
@@ -69,5 +69,5 @@ class Graph(metaclass=ABCMeta):
     def add_triple(self,
                    subject: SubjectType,
                    predicate: PredicateType,
-                   obj: NodeType) -> None:
+                   obj: IdType) -> None:
         pass

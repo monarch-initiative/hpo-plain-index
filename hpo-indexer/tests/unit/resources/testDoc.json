@@ -1,22 +1,28 @@
 {
-   "id":"HP:0000464",
-   "label": "Abnormality of the neck",
-   "exact_synonym":[
-      "Abnormality of the neck"
-   ],
-   "narrow_synonym":null,
-   "broad_synonym":null,
-   "related_synonym":null,
-   "phenotype_closure":[
-      "HP:0000464",
-      "HP:0000152",
-      "HP:0000118"
-   ],
-   "phenotype_closure_label":[
-      "Abnormality of the neck",
-      "Abnormality of head or neck",
-      "Phenotypic abnormality"
-   ],
-   "anatomy_closure":null,
-   "anatomy_closure_label":null
+  "id":"HP:0000464",
+  "label": "Abnormality of the neck",
+  "has_pl_syn": true,
+  "definition": null,
+  "exact_synonym":[
+    "Abnormality of the neck"
+  ],
+  "narrow_synonym":null,
+  "broad_synonym":null,
+  "related_synonym":null,
+  "exact_syn_clin":null,
+  "narrow_syn_clin":null,
+  "broad_syn_clin":null,
+  "related_syn_clin":null,
+  "phenotype_closure":[
+    "HP:0000464",
+    "HP:0000152",
+    "HP:0000118"
+  ],
+  "phenotype_closure_label":[
+    "Abnormality of the neck",
+    "Abnormality of head or neck",
+    "Phenotypic abnormality"
+  ],
+  "anatomy_closure":null,
+  "anatomy_closure_label":null
 }
