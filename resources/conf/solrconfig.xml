@@ -767,6 +767,7 @@
                      related_syn_clin_std^2 related_syn_clin_kw^2 related_syn_clin_eng^2
                      broad_synonym_std^1 broad_synonym_kw^1 broad_synonym_eng^1
                      broad_syn_clin_std^1 broad_syn_clin_kw^1 broad_syn_clin_eng^1
+                     label_std^5 label_kw^5 label_eng^5
       </str>
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
