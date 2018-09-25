@@ -760,9 +760,13 @@
       <str name="indent">true</str>
       <str name="defType">edismax</str>
       <str name="qf">exact_synonym_std^5 exact_synonym_kw^5 exact_synonym_eng^5
+                     exact_syn_clin_std^5 exact_syn_clin_kw^5 exact_syn_clin_eng^5
                      narrow_synonym_std^3 narrow_synonym_kw^3 narrow_synonym_eng^3
+                     narrow_syn_clin_std^3 narrow_syn_clin_kw^3 narrow_syn_clin_eng^3
                      related_synonym_std^2 related_synonym_kw^2 related_synonym_eng^2
+                     related_syn_clin_std^2 related_syn_clin_kw^2 related_syn_clin_eng^2
                      broad_synonym_std^1 broad_synonym_kw^1 broad_synonym_eng^1
+                     broad_syn_clin_std^1 broad_syn_clin_kw^1 broad_syn_clin_eng^1
       </str>
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
