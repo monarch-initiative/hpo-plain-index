@@ -1,35 +1,52 @@
 ### HPO Plain Language Indexer
 
-Builds a solr index of HPO plain language synonyms, including phenotype
+Builds a solr index of HPO plain language and clinical synonyms, including phenotype
 and anatomy groupings to enable faceting.  For example:
 
 ````
 [
   {
-    "id": "HP:0000464",
-    "label": "Abnormality of the neck",
+    "id": "HP:0001528",
+    "label": "Hemihypertrophy",
+    "definition": "Overgrowth of only one side of the body.",
+    "has_pl_syn": true,
     "exact_synonym": [
-      "Abnormality of the neck"
+      "Asymmetric overgrowth"
+    ],
+    "exact_syn_clin": [
+      "Asymmetric limb hypertrophy"
     ],
     "phenotype_closure": [
-      "HP:0000464",
-      "HP:0000152",
+      "HP:0001528",
+      "HP:0040064",
+      "HP:0100555",
+      "HP:0001507",
       "HP:0000118"
     ],
     "phenotype_closure_label": [
-      "Abnormality of the neck",
-      "Abnormality of head or neck",
+      "Hemihypertrophy",
+      "Abnormality of limbs",
+      "Asymmetric growth",
+      "Growth abnormality",
       "Phenotypic abnormality"
     ],
     "anatomy_closure": [
-      "UBERON_0007811",
-      "UBERON_0000153",
-      "UBERON_0013702"
+      "UBERON:0000061",
+      "UBERON:0010000",
+      "UBERON:0000475",
+      "UBERON:0010707",
+      "UBERON:0015212",
+      "UBERON:0000465",
+      "UBERON:0001062"
     ],
     "anatomy_closure_label": [
-      "craniocervical region",
-      "anterior region of body",
-      "body proper"
+      "appendage girdle complex",
+      "organism subdivision",
+      "material anatomical entity",
+      "anatomical entity",
+      "anatomical structure",
+      "multicellular anatomical structure",
+      "lateral structure"
     ]
   }
 ]

@@ -172,7 +172,8 @@ class SolrLoader():
             'logic': 'http://purl.obolibrary.org/obo/hp/hp-logical-definitions-subq#',
             'HsapDv': 'http://purl.obolibrary.org/obo/HsapDv_',
             'BSPO': 'http://purl.obolibrary.org/obo/BSPO_',
-            'DOID': 'http://purl.obolibrary.org/obo/DOID_'
+            'DOID': 'http://purl.obolibrary.org/obo/DOID_',
+            'UPHENO': 'http://purl.obolibrary.org/obo/UPHENO_'
         }
 
 
